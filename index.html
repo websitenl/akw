@@ -1,0 +1,4900 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Industrial Plant Monitoring</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#d7dadd;
+    color:#20252a;
+}
+
+.app{
+    width:100vw;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:#d9dcde;
+}
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+
+.topbar{
+    height:58px;
+    background:linear-gradient(#fafafa,#dfe2e4);
+    border-bottom:1px solid #777;
+    display:flex;
+    align-items:center;
+    padding:0 14px;
+    box-shadow:0 1px 4px rgba(0,0,0,.25);
+    z-index:20;
+}
+
+.brand{
+    width:230px;
+    height:38px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border-right:1px solid #aaa;
+}
+
+.brand-square{
+    width:31px;
+    height:31px;
+    border:2px solid #42484d;
+    background:#f6f6f6;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:bold;
+    font-size:11px;
+}
+
+.brand-text{
+    font-size:13px;
+    font-weight:bold;
+    letter-spacing:.8px;
+}
+
+.system-title{
+    padding-left:18px;
+    font-size:15px;
+    font-weight:bold;
+    color:#333;
+}
+
+.top-status{
+    margin-left:auto;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    font-size:11px;
+}
+
+.status-item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.green,
+.yellow,
+.gray,
+.red{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    display:inline-block;
+}
+
+.green{
+    background:#52a54e;
+    border:1px solid #326b31;
+}
+
+.yellow{
+    background:#e5b830;
+    border:1px solid #957714;
+}
+
+.gray{
+    background:#999;
+    border:1px solid #666;
+}
+
+.red{
+    background:#c65a4d;
+    border:1px solid #79352e;
+}
+
+/* =========================================================
+   LAYOUT
+========================================================= */
+
+.body{
+    flex:1;
+    display:flex;
+    min-height:0;
+}
+
+.sidebar{
+    width:178px;
+    background:linear-gradient(#eef0f1,#d4d7d9);
+    border-right:1px solid #7d8285;
+    padding:8px;
+    box-shadow:2px 0 5px rgba(0,0,0,.12);
+}
+
+.nav-title{
+    font-size:10px;
+    font-weight:bold;
+    color:#666;
+    margin:4px 4px 7px;
+    text-transform:uppercase;
+}
+
+.nav{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+}
+
+.nav button{
+    border:1px solid #999;
+    background:linear-gradient(#f9f9f9,#d9dcde);
+    height:35px;
+    text-align:left;
+    padding:0 9px;
+    font-size:11px;
+    color:#333;
+    cursor:pointer;
+}
+
+.nav button:hover{
+    background:#fff;
+}
+
+.nav button.active{
+    background:linear-gradient(#d8e8ee,#b9d3dd);
+    border-color:#6e9cab;
+    box-shadow:inset 3px 0 #377f94;
+    font-weight:bold;
+}
+
+.sidebar-separator{
+    height:1px;
+    background:#aaa;
+    margin:10px 0;
+}
+
+.main{
+    flex:1;
+    min-width:0;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.page-header{
+    height:45px;
+    background:#f3f4f4;
+    border-bottom:1px solid #999;
+    display:flex;
+    align-items:center;
+    padding:0 12px;
+}
+
+.page-header h1{
+    font-size:14px;
+    margin:0;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+}
+
+.page-header span{
+    margin-left:auto;
+    font-size:10px;
+    color:#666;
+}
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.content{
+    flex:1;
+    min-height:0;
+    overflow:auto;
+    padding:8px;
+}
+
+.page{
+    display:none;
+    height:100%;
+}
+
+.page.active{
+    display:block;
+}
+
+/* =========================================================
+   PANELS
+========================================================= */
+
+.panel{
+    background:#f5f6f6;
+    border:1px solid #888;
+    box-shadow:0 1px 3px rgba(0,0,0,.15);
+    min-width:0;
+    min-height:0;
+}
+
+.panel-head{
+    height:29px;
+    background:linear-gradient(#ffffff,#dedfe0);
+    border-bottom:1px solid #999;
+    display:flex;
+    align-items:center;
+    padding:0 8px;
+    font-size:10px;
+    font-weight:bold;
+    text-transform:uppercase;
+}
+
+.panel-head small{
+    margin-left:auto;
+    font-weight:normal;
+    color:#666;
+}
+
+.panel-body{
+    height:calc(100% - 29px);
+    position:relative;
+    overflow:hidden;
+}
+
+/* =========================================================
+   OVERVIEW
+========================================================= */
+
+.overview-grid{
+    display:grid;
+    grid-template-columns:1fr 315px;
+    grid-template-rows:1fr 160px;
+    gap:8px;
+    height:100%;
+}
+
+/* =========================================================
+   PLANT GRAPHIC
+========================================================= */
+
+.plant{
+    position:absolute;
+    inset:5px;
+    background:#f8f9f9;
+    border:1px solid #c5c7c8;
+    overflow:hidden;
+}
+
+/* OVERVIEW LABEL / PIPE SEPARATION */
+.plant-label,
+.reactor-name,
+.turbine-label,
+.tower-name{
+    z-index:20 !important;
+    position:absolute;
+    background:#f7f8f8;
+    border:1px solid #aeb1b3;
+    box-shadow:0 0 0 3px rgba(247,248,248,.98);
+    white-space:nowrap;
+    pointer-events:none;
+}
+.plant-label{padding:3px 6px;}
+.reactor-name{padding:2px 5px;}
+.turbine-label{padding:2px 5px; width:auto !important; left:50%; transform:translateX(-50%);}
+.tower-name{padding:2px 5px; width:auto !important; left:50%; transform:translateX(-50%); bottom:-20px;}
+.process-line,.pipe,.vertical{z-index:1 !important;}
+.plant-node{z-index:4;}
+.plant-label{
+    position:absolute;
+    font-size:9px;
+    font-weight:bold;
+    color:#565b5f;
+    background:rgba(255,255,255,.85);
+    border:1px solid #bbb;
+    padding:3px 5px;
+    z-index:5;
+}
+
+.reactor{
+    position:absolute;
+    width:72px;
+    height:128px;
+    background:linear-gradient(
+        90deg,
+        #b8babc,
+        #f4f4f4,
+        #b6b8ba
+    );
+    border:2px solid #676b6d;
+    border-radius:37px 37px 12px 12px;
+    box-shadow:inset 8px 0 8px rgba(0,0,0,.08);
+    cursor:pointer;
+}
+
+.reactor:hover{
+    outline:2px solid #4c92a5;
+}
+
+.r1{left:8%;top:27%}
+.r2{left:29%;top:27%}
+.r3{left:50%;top:27%}
+.r4{left:71%;top:27%}
+
+.reactor:after{
+    content:"";
+    position:absolute;
+    top:12px;
+    left:30px;
+    width:9px;
+    height:80px;
+    background:#dedfe0;
+    border-left:1px solid #888;
+    border-right:1px solid #888;
+}
+
+.reactor-name{
+    position:absolute;
+    bottom:-24px;
+    width:100%;
+    text-align:center;
+    font-size:9px;
+    font-weight:bold;
+}
+
+.status-dot{
+    position:absolute;
+    top:7px;
+    right:8px;
+    width:9px;
+    height:9px;
+    background:#50a64d;
+    border-radius:50%;
+    border:1px solid #397737;
+    z-index:2;
+}
+
+.pipe{
+    position:absolute;
+    height:4px;
+    background:#7a7d7f;
+    border-top:1px solid #444;
+    border-bottom:1px solid #aaa;
+}
+
+.pipe.blue{
+    background:#638da1;
+}
+
+.pipe.greenpipe{
+    background:#6d9a68;
+}
+
+.pipe.yellowpipe{
+    background:#b2a34b;
+}
+
+.turbine-feed{
+    height:3px;
+    background:#777;
+    border-top:1px solid #4b4d4e;
+    border-bottom:1px solid #aaa;
+    opacity:.9;
+    animation:flowPulse 2.8s ease-in-out infinite;
+}
+
+.tf1{left:20%;top:62.5%;width:5%}
+.tf2{left:41%;top:62.5%;width:5%}
+.tf3{left:62%;top:62.5%;width:5%}
+.tf4{left:83%;top:62.5%;width:3%}
+
+@keyframes flowPulse{
+    0%,100%{opacity:.55}
+    50%{opacity:1}
+}
+
+.p1{
+    left:15%;
+    top:59%;
+    width:70%;
+}
+
+.p2{
+    left:15%;
+    top:65%;
+    width:70%;
+}
+
+.p3{
+    left:15%;
+    top:71%;
+    width:70%;
+}
+
+.vertical{
+    position:absolute;
+    width:4px;
+    background:#7a7d7f;
+    border-left:1px solid #444;
+    border-right:1px solid #aaa;
+}
+
+.v1{
+    left:20%;
+    top:45%;
+    height:29%;
+}
+
+.v2{
+    left:40%;
+    top:45%;
+    height:29%;
+}
+
+.v3{
+    left:60%;
+    top:45%;
+    height:29%;
+}
+
+.v4{
+    left:80%;
+    top:45%;
+    height:29%;
+}
+
+/* =========================================================
+   PROCESS CONNECTIONS
+========================================================= */
+
+.process-line{
+    position:absolute;
+    z-index:1;
+    pointer-events:none;
+    height:4px;
+    border-top:1px solid #45484a;
+    border-bottom:1px solid #aeb0b1;
+    background:#7b7e80;
+    opacity:.88;
+}
+
+.process-line.steam{background:#8a8d8f;animation:flowPulse 2.2s ease-in-out infinite}
+.process-line.water{background:#668fa3;animation:flowPulse 3.1s ease-in-out infinite}
+.process-line.return{background:#6f996b;animation:flowPulse 3.6s ease-in-out infinite}
+.process-line.electrical{background:#a99a42;height:3px}
+
+.plant-node{
+    position:absolute;
+    width:8px;height:8px;border-radius:50%;
+    border:1px solid #444;background:#d5d7d8;
+    z-index:4;pointer-events:none;
+}
+
+/* clear separation between turbine hall and cooling structures */
+.turb1,.turb2,.turb3,.turb4{z-index:3}
+.t1,.t2,.t3,.t4{z-index:2}
+.generator{z-index:3}
+.transformer{z-index:4}
+
+
+/* --- refined overview routing --- */
+.r1{left:8%;top:23%}.r2{left:29%;top:23%}.r3{left:50%;top:23%}.r4{left:71%;top:23%}
+.g1{left:8.8%;top:52%}.g2{left:29.8%;top:52%}.g3{left:50.8%;top:52%}.g4{left:71.8%;top:52%}
+.turb1{left:7.8%;top:64%}.turb2{left:28.8%;top:64%}.turb3{left:49.8%;top:64%}.turb4{left:70.8%;top:64%}
+.t1{left:7.2%;bottom:2%}.t2{left:28.2%;bottom:2%}.t3{left:49.2%;bottom:2%}.t4{left:70.2%;bottom:2%}
+.tr1{left:17.5%;top:52%}.tr2{left:38.5%;top:52%}.tr3{left:59.5%;top:52%}.tr4{left:80.5%;top:52%}
+.route{position:absolute;z-index:1;pointer-events:none;box-sizing:border-box;opacity:.88}
+.route.steam{width:4px;background:#8a8d8f;border-left:1px solid #45484a;border-right:1px solid #b8b9ba;animation:flowPulse 2.2s ease-in-out infinite}
+.route.water{width:4px;background:#668fa3;border-left:1px solid #405b68;border-right:1px solid #9eb5c0;animation:flowPulse 3.1s ease-in-out infinite}
+.route.return{height:4px;background:#6f996b;border-top:1px solid #4e6f4c;border-bottom:1px solid #9ab498;animation:flowPulse 3.6s ease-in-out infinite}
+.route.electrical{height:3px;background:#a99a42;border-top:1px solid #776c2e;border-bottom:1px solid #c5bb74}
+.route.elec-v{width:3px;background:#a99a42;border-left:1px solid #776c2e;border-right:1px solid #c5bb74}
+
+
+/* =========================================================
+   CLEAN OVERVIEW ROUTING
+========================================================= */
+.overview-routing{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:1;
+    pointer-events:none;
+    overflow:visible;
+}
+.overview-routing .ol{
+    fill:none;
+    stroke-linecap:square;
+    stroke-linejoin:miter;
+    vector-effect:non-scaling-stroke;
+}
+.overview-routing .steam,
+.overview-routing .steam-header{
+    stroke:#777c7e;
+    stroke-width:4;
+    stroke-dasharray:18 8;
+    animation:pipeFlow 2.5s linear infinite;
+}
+.overview-routing .condensate{
+    stroke:#6b92a3;
+    stroke-width:4;
+    stroke-dasharray:14 7;
+    animation:pipeFlow 3s linear infinite;
+}
+.overview-routing .cooling{
+    stroke:#668f9f;
+    stroke-width:5;
+    stroke-dasharray:20 9;
+    animation:pipeFlow 3.4s linear infinite;
+}
+.overview-routing .cooling-return{
+    stroke:#6e986d;
+    stroke-width:4;
+    stroke-dasharray:16 8;
+    animation:pipeFlow 3.7s linear infinite;
+}
+.overview-routing .electrical{
+    stroke:#aa9b48;
+    stroke-width:3;
+}
+.overview-routing .shaft{
+    stroke:#777c7e;
+    stroke-width:3;
+    stroke-dasharray:10 5;
+    animation:pipeFlow 2.8s linear infinite;
+}
+.overview-routing .auxiliary{
+    stroke:#999b9c;
+    stroke-width:2;
+    stroke-dasharray:7 7;
+}
+.overview-routing .junctions circle{
+    fill:#e2e3e3;
+    stroke:#55595b;
+    stroke-width:2;
+}
+@keyframes pipeFlow{
+    to{stroke-dashoffset:-52}
+}
+/* Put equipment and labels above all routing. */
+.plant-label,.reactor,.generator,.turbine,.tower,.transformer,
+.reactor-name,.tower-name,.turbine-label,.status-dot{z-index:5}
+/* Hide old routing primitives so only the coherent network remains. */
+.plant > .pipe,.plant > .vertical,.plant > .route{display:none!important}
+
+/* =========================================================
+   GENERATORS
+========================================================= */
+
+.generator{
+    position:absolute;
+    width:55px;
+    height:37px;
+    border:1px solid #686b6d;
+    background:linear-gradient(#e8e9e9,#aeb1b3);
+    border-radius:8px;
+}
+
+.g1{left:17%;top:47%}
+.g2{left:38%;top:47%}
+.g3{left:59%;top:47%}
+.g4{left:80%;top:47%}
+
+/* =========================================================
+   TURBINES
+========================================================= */
+
+.turbine{
+    position:absolute;
+    width:76px;
+    height:38px;
+    border:2px solid #626668;
+    background:linear-gradient(#e9e9e9,#b8babb);
+    border-radius:4px;
+    cursor:pointer;
+}
+
+.turbine:hover{
+    outline:2px solid #4c92a5;
+}
+
+.turbine:before{
+    content:"";
+    position:absolute;
+    top:16px;
+    left:-15px;
+    width:15px;
+    height:4px;
+    background:#777;
+}
+
+.turb1{left:15%;top:65%}
+.turb2{left:36%;top:65%}
+.turb3{left:57%;top:65%}
+.turb4{left:78%;top:65%}
+
+.turbine-label{
+    position:absolute;
+    top:42px;
+    left:50%;
+    transform:translateX(-50%);
+    width:max-content;
+    min-width:38px;
+    padding:1px 4px;
+    background:#f7f8f8;
+    border:1px solid #aeb1b3;
+    box-shadow:0 0 0 2px rgba(247,248,248,.98);
+    z-index:20;
+    width:100%;
+    text-align:center;
+    font-size:8px;
+}
+
+/* =========================================================
+   COOLING TOWERS
+========================================================= */
+
+.tower{
+    position:absolute;
+    width:85px;
+    height:92px;
+    background:linear-gradient(
+        90deg,
+        #bbbdbd,
+        #f2f2f2,
+        #b9bbbc
+    );
+    border:2px solid #777;
+    clip-path:polygon(
+        20% 0,
+        80% 0,
+        95% 100%,
+        5% 100%
+    );
+    cursor:pointer;
+}
+
+.tower:hover{
+    outline:2px solid #4c92a5;
+}
+
+.tower:after{
+    content:"";
+    position:absolute;
+    left:15px;
+    right:15px;
+    bottom:13px;
+    height:28px;
+    border:2px solid #777;
+    background:repeating-linear-gradient(
+        90deg,
+        #888 0,
+        #888 4px,
+        #d9d9d9 4px,
+        #d9d9d9 8px
+    );
+}
+
+.t1{left:8%;bottom:2%}
+.t2{left:30%;bottom:2%}
+.t3{left:52%;bottom:2%}
+.t4{left:74%;bottom:2%}
+
+.tower-name{
+    position:absolute;
+    bottom:-18px;
+    left:0;
+    width:100%;
+    text-align:center;
+    font-size:9px;
+    font-weight:bold;
+}
+
+/* =========================================================
+   TRANSFORMERS — aligned beside each generator
+========================================================= */
+
+.transformer{
+    position:absolute;
+    width:42px;
+    height:35px;
+    background:#d5d7d8;
+    border:2px solid #65696b;
+    cursor:pointer;
+    z-index:6;
+}
+
+/* Each transformer sits in the same local bay as its generator. */
+.tr1{left:24%;top:47%}
+.tr2{left:45%;top:47%}
+.tr3{left:66%;top:47%}
+.tr4{left:87%;top:47%}
+
+/* =========================================================
+   STATUS LIST
+========================================================= */
+
+.status-list{
+    height:100%;
+    overflow:auto;
+}
+
+.status-row{
+    display:grid;
+    grid-template-columns:10px 1fr 70px;
+    align-items:center;
+    gap:7px;
+    min-height:27px;
+    border-bottom:1px solid #d0d0d0;
+    padding:0 8px;
+    font-size:9px;
+}
+
+.status-value{
+    text-align:right;
+    font-family:monospace;
+    color:#3d454a;
+}
+
+/* =========================================================
+   MINI TRENDS
+========================================================= */
+
+.trend-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:6px;
+    padding:6px;
+    height:100%;
+}
+
+.mini-chart{
+    border:1px solid #aaa;
+    background:#fff;
+    position:relative;
+    overflow:hidden;
+}
+
+.chart-title{
+    position:absolute;
+    top:5px;
+    left:7px;
+    font-size:9px;
+    font-weight:bold;
+    z-index:3;
+}
+
+.chart-value{
+    position:absolute;
+    right:7px;
+    top:5px;
+    font-family:monospace;
+    font-size:9px;
+    z-index:3;
+}
+
+/* =========================================================
+   DATA TABLE
+========================================================= */
+
+.data-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:10px;
+}
+
+.data-table td{
+    border-bottom:1px solid #d3d3d3;
+    padding:6px;
+}
+
+.data-table td:last-child{
+    text-align:right;
+    font-family:monospace;
+    font-weight:bold;
+}
+
+/* =========================================================
+   INSTRUMENTS
+========================================================= */
+
+.instrument-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:6px;
+    padding:7px;
+    height:100%;
+    overflow:auto;
+}
+
+.instrument{
+    border:1px solid #aaa;
+    background:#fafafa;
+    padding:7px;
+    min-height:65px;
+}
+
+.instrument-name{
+    font-size:8px;
+    color:#666;
+    margin-bottom:5px;
+}
+
+.instrument-value{
+    font-family:monospace;
+    font-size:15px;
+    font-weight:bold;
+}
+
+.instrument-unit{
+    font-size:8px;
+    color:#777;
+}
+
+/* =========================================================
+   LARGE TRENDS
+========================================================= */
+
+.full-trends{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:1fr 1fr;
+    gap:8px;
+    height:100%;
+}
+
+.large-chart{
+    background:#fafafa;
+    border:1px solid #999;
+    position:relative;
+}
+
+.large-chart-title{
+    position:absolute;
+    left:9px;
+    top:8px;
+    font-size:10px;
+    font-weight:bold;
+    z-index:3;
+}
+
+.large-chart-value{
+    position:absolute;
+    right:10px;
+    top:8px;
+    font-size:10px;
+    font-family:monospace;
+    z-index:3;
+}
+
+.large-chart svg{
+    width:100%;
+    height:100%;
+}
+
+/* =========================================================
+   EQUIPMENT
+========================================================= */
+
+.equipment-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+}
+
+.equipment-card{
+    background:#f8f8f8;
+    border:1px solid #999;
+    min-height:135px;
+    cursor:pointer;
+}
+
+.equipment-card:hover{
+    border-color:#548b9a;
+}
+
+.equipment-head{
+    height:30px;
+    border-bottom:1px solid #aaa;
+    background:linear-gradient(#fff,#ddd);
+    display:flex;
+    align-items:center;
+    padding:0 8px;
+    font-size:9px;
+    font-weight:bold;
+}
+
+.equipment-body{
+    padding:9px;
+}
+
+.equip-line{
+    display:flex;
+    justify-content:space-between;
+    border-bottom:1px dotted #bbb;
+    padding:4px 0;
+    font-size:9px;
+}
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+.alarm-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:10px;
+}
+
+.alarm-table th{
+    background:#dcdede;
+    border:1px solid #999;
+    padding:7px;
+    text-align:left;
+}
+
+.alarm-table td{
+    border:1px solid #c2c2c2;
+    padding:7px;
+}
+
+/* =========================================================
+   LOG
+========================================================= */
+
+.log{
+    background:#181b1d;
+    color:#d7d7d7;
+    height:100%;
+    overflow:auto;
+    font-family:monospace;
+    font-size:11px;
+    padding:10px;
+}
+
+.logline{
+    margin-bottom:7px;
+}
+
+.logtime{
+    color:#8c999f;
+}
+
+.logok{
+    color:#78b477;
+}
+
+.loginfo{
+    color:#aab5ba;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.35);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+}
+
+.modal.open{
+    display:flex;
+}
+
+.modal-box{
+    width:550px;
+    max-height:85vh;
+    overflow:auto;
+    background:#eceeee;
+    border:1px solid #666;
+    box-shadow:0 10px 35px rgba(0,0,0,.4);
+}
+
+.modal-head{
+    height:38px;
+    background:linear-gradient(#fff,#d7d9da);
+    border-bottom:1px solid #888;
+    display:flex;
+    align-items:center;
+    padding:0 10px;
+    font-size:11px;
+    font-weight:bold;
+}
+
+.close{
+    margin-left:auto;
+    width:25px;
+    height:24px;
+    border:1px solid #888;
+    background:#eee;
+    cursor:pointer;
+}
+
+.modal-content{
+    padding:12px;
+}
+
+.detail-block{
+    border:1px solid #aaa;
+    background:#fafafa;
+    margin-bottom:7px;
+}
+
+.detail-block-title{
+    background:#dddfe0;
+    border-bottom:1px solid #aaa;
+    padding:6px;
+    font-size:9px;
+    font-weight:bold;
+}
+
+.detail-row{
+    display:flex;
+    justify-content:space-between;
+    padding:6px 8px;
+    font-size:10px;
+    border-bottom:1px solid #ddd;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.footer{
+    height:25px;
+    background:linear-gradient(#dedfe0,#c6c8ca);
+    border-top:1px solid #858789;
+    display:flex;
+    align-items:center;
+    padding:0 9px;
+    font-size:9px;
+    color:#4c5154;
+}
+
+.footer-right{
+    margin-left:auto;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:1000px){
+
+    .sidebar{
+        width:140px;
+    }
+
+    .overview-grid{
+        grid-template-columns:1fr;
+        grid-template-rows:520px 200px 160px;
+    }
+
+    .equipment-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+
+/* =========================================================
+   LANGUAGE / SETTINGS
+========================================================= */
+.language-area{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-left:10px;
+    padding-left:10px;
+    border-left:1px solid #aaa;
+}
+.settings-button{
+    height:30px;
+    min-width:34px;
+    border:1px solid #888;
+    background:linear-gradient(#fff,#d9dcde);
+    color:#333;
+    font-size:15px;
+    cursor:pointer;
+    box-shadow:inset 0 1px #fff;
+}
+.settings-button:hover{background:#fff}
+.flag-button{
+    width:31px;
+    height:23px;
+    border:1px solid #8a8a8a;
+    background:#f4f4f4;
+    padding:0;
+    cursor:pointer;
+    font-size:16px;
+    line-height:20px;
+    box-shadow:inset 0 1px #fff;
+}
+.flag-button:hover{background:#fff}
+.flag-button.active{
+    border-color:#5b8795;
+    box-shadow:inset 0 -2px #377f94,0 0 0 1px #b5cbd2;
+    background:#e6eef1;
+}
+.settings-modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.28);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+}
+.settings-modal.open{display:flex}
+.settings-box{
+    width:390px;
+    background:#eef0f1;
+    border:1px solid #666;
+    box-shadow:0 5px 22px rgba(0,0,0,.35);
+}
+.settings-head{
+    height:38px;
+    display:flex;
+    align-items:center;
+    padding:0 10px;
+    font-size:12px;
+    font-weight:bold;
+    background:linear-gradient(#fff,#dfe2e4);
+    border-bottom:1px solid #888;
+}
+.settings-close{
+    margin-left:auto;
+    border:1px solid #999;
+    background:#eee;
+    width:25px;
+    height:23px;
+    cursor:pointer;
+}
+.settings-body{padding:14px}
+.language-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:7px;
+}
+.language-choice{
+    border:1px solid #999;
+    background:linear-gradient(#fff,#d9dcde);
+    min-height:68px;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+    font-size:10px;
+    color:#333;
+}
+.language-choice:hover{background:#fff}
+.language-choice.active{
+    border-color:#5b8795;
+    box-shadow:inset 0 -3px #377f94;
+    background:#e6eef1;
+}
+.language-flag{font-size:24px;line-height:24px}
+.language-note{
+    margin-top:12px;
+    border-top:1px solid #aaa;
+    padding-top:9px;
+    font-size:9px;
+    color:#666;
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="app">
+
+<!-- =====================================================
+     TOP BAR
+===================================================== -->
+
+<header class="topbar">
+
+    <div class="brand">
+
+        <div class="brand-square">
+            HMI
+        </div>
+
+        <div class="brand-text">
+            INDUSTRIAL<br>
+            MONITORING
+        </div>
+
+    </div>
+
+    <div class="system-title">
+        POWER GENERATION FACILITY — CENTRAL MONITORING
+    </div>
+
+    <div class="language-area" aria-label="Language selection">
+        <button class="settings-button" id="settingsButton" title="Settings" onclick="openSettings()">⚙</button>
+        <button class="flag-button active" data-lang="de" onclick="setLanguage('de')" title="Deutsch">🇩🇪</button>
+        <button class="flag-button" data-lang="ru" onclick="setLanguage('ru')" title="Русский">🇷🇺</button>
+        <button class="flag-button" data-lang="en" onclick="setLanguage('en')" title="English">🇬🇧</button>
+        <button class="flag-button" data-lang="uk" onclick="setLanguage('uk')" title="Українська">🇺🇦</button>
+        <button class="flag-button" data-lang="pl" onclick="setLanguage('pl')" title="Polski">🇵🇱</button>
+    </div>
+
+    <div class="top-status">
+
+        <div class="status-item">
+            <span class="green"></span>
+            SYSTEM
+        </div>
+
+        <div class="status-item">
+            <span class="green"></span>
+            NETWORK
+        </div>
+
+        <div class="status-item">
+            <span class="yellow"></span>
+            EVENTS <span id="eventCount">03</span>
+        </div>
+
+        <div id="clock">
+            00:00:00
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =====================================================
+     BODY
+===================================================== -->
+
+<div class="body">
+
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="sidebar">
+
+    <div class="nav-title">
+        Plant navigation
+    </div>
+
+    <nav class="nav">
+
+        <button class="active"
+        onclick="showPage('overview',this)">
+            ▣ PLANT OVERVIEW
+        </button>
+
+        <button onclick="showPage('reactors',this)">
+            ◉ REACTOR SYSTEMS
+        </button>
+
+        <button onclick="showPage('turbines',this)">
+            ◈ TURBINE HALL
+        </button>
+
+        <button onclick="showPage('cooling',this)">
+            ▥ COOLING SYSTEM
+        </button>
+
+        <button onclick="showPage('steam',this)">
+            ≋ STEAM / WATER
+        </button>
+
+        <button onclick="showPage('electrical',this)">
+            ⚡ ELECTRICAL
+        </button>
+
+        <button onclick="showPage('auxiliary',this)">
+            ▤ AUXILIARY SYSTEMS
+        </button>
+
+        <button onclick="showPage('trends',this)">
+            ≋ TRENDS
+        </button>
+
+        <button onclick="showPage('alarms',this)">
+            ! EVENTS
+        </button>
+
+        <button onclick="showPage('log',this)">
+            ▤ SYSTEM LOG
+        </button>
+
+    </nav>
+
+
+    <div class="sidebar-separator"></div>
+
+
+    <div class="nav-title">
+        Systems
+    </div>
+
+    <nav class="nav">
+
+        <button onclick="showPage('equipment',this)">
+            Equipment
+        </button>
+
+        <button onclick="showPage('instrumentation',this)">
+            Instrumentation
+        </button>
+
+        <button onclick="showPage('environment',this)">
+            Environment
+        </button>
+
+        <button onclick="showPage('grid',this)">
+            Grid / Switchyard
+        </button>
+
+        <button onclick="showPage('communications',this)">
+            Communications
+        </button>
+
+    </nav>
+
+</aside>
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="main">
+
+<div class="page-header">
+
+    <h1 id="pageTitle">
+        Plant Overview
+    </h1>
+
+    <span>
+        CENTRAL MONITORING SYSTEM / ONLINE
+    </span>
+
+</div>
+
+
+<div class="content">
+
+
+<!-- =====================================================
+     OVERVIEW
+===================================================== -->
+
+<section id="overview" class="page active">
+
+<div class="overview-grid">
+
+
+<!-- PLANT -->
+<div class="panel">
+
+<div class="panel-head">
+    FACILITY OVERVIEW
+    <small>PROCESS AREA / ALL UNITS</small>
+</div>
+
+<div class="panel-body">
+
+<div class="plant">
+
+    <div class="plant-label"
+         style="left:10px;top:10px">
+        REACTOR ISLAND
+    </div>
+
+    <div class="plant-label"
+         style="left:10px;bottom:4px">
+        COOLING AREA
+    </div>
+
+    <div class="plant-label"
+         style="left:10px;top:40%">
+        TURBINE HALL / GENERATION
+    </div>
+
+
+    <!-- REACTORS -->
+
+    <div class="reactor r1"
+         onclick="openObject('REACTOR UNIT 01')">
+
+        <span class="status-dot"></span>
+
+        <div class="reactor-name">
+            UNIT 01
+        </div>
+
+    </div>
+
+
+    <div class="reactor r2"
+         onclick="openObject('REACTOR UNIT 02')">
+
+        <span class="status-dot"></span>
+
+        <div class="reactor-name">
+            UNIT 02
+        </div>
+
+    </div>
+
+
+    <div class="reactor r3"
+         onclick="openObject('REACTOR UNIT 03')">
+
+        <span class="status-dot"></span>
+
+        <div class="reactor-name">
+            UNIT 03
+        </div>
+
+    </div>
+
+
+    <div class="reactor r4"
+         onclick="openObject('REACTOR UNIT 04')">
+
+        <span class="status-dot"></span>
+
+        <div class="reactor-name">
+            UNIT 04
+        </div>
+
+    </div>
+
+
+    <!-- GENERATORS -->
+
+    <div class="generator g1"></div>
+    <div class="generator g2"></div>
+    <div class="generator g3"></div>
+    <div class="generator g4"></div>
+
+
+    <!-- TURBINES -->
+
+    <div class="turbine turb1"
+         onclick="openObject('TURBINE GENERATOR 01')">
+
+        <div class="turbine-label">
+            TG-01
+        </div>
+
+    </div>
+
+
+    <div class="turbine turb2"
+         onclick="openObject('TURBINE GENERATOR 02')">
+
+        <div class="turbine-label">
+            TG-02
+        </div>
+
+    </div>
+
+
+    <div class="turbine turb3"
+         onclick="openObject('TURBINE GENERATOR 03')">
+
+        <div class="turbine-label">
+            TG-03
+        </div>
+
+    </div>
+
+
+    <div class="turbine turb4"
+         onclick="openObject('TURBINE GENERATOR 04')">
+
+        <div class="turbine-label">
+            TG-04
+        </div>
+
+    </div>
+
+
+    <!-- COOLING TOWERS -->
+
+    <div class="tower t1"
+         onclick="openObject('COOLING TOWER 01')">
+
+        <div class="tower-name">
+            CT-01
+        </div>
+
+    </div>
+
+
+    <div class="tower t2"
+         onclick="openObject('COOLING TOWER 02')">
+
+        <div class="tower-name">
+            CT-02
+        </div>
+
+    </div>
+
+
+    <div class="tower t3"
+         onclick="openObject('COOLING TOWER 03')">
+
+        <div class="tower-name">
+            CT-03
+        </div>
+
+    </div>
+
+
+    <div class="tower t4"
+         onclick="openObject('COOLING TOWER 04')">
+
+        <div class="tower-name">
+            CT-04
+        </div>
+
+    </div>
+
+
+    <!-- PROCESS ROUTING LAYER
+         Dedicated corridors keep process lines behind equipment labels. -->
+    <svg class="overview-routing" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
+      <!-- CLEAN UNIT-BY-UNIT PROCESS CORRIDORS -->
+      <!-- Reactor -> turbine steam: routed outside equipment and labels -->
+      <path class="ol steam" d="M116 205 V330 H148 V400"/>
+      <path class="ol steam" d="M326 205 V330 H358 V400"/>
+      <path class="ol steam" d="M536 205 V330 H568 V400"/>
+      <path class="ol steam" d="M746 205 V330 H778 V400"/>
+
+      <!-- Turbine shaft -> generator: short vertical local couplings -->
+      <path class="ol shaft" d="M188 382 V300"/>
+      <path class="ol shaft" d="M398 382 V300"/>
+      <path class="ol shaft" d="M608 382 V300"/>
+      <path class="ol shaft" d="M818 382 V300"/>
+
+      <!-- Generator -> transformer: short electrical connections -->
+      <path class="ol electrical" d="M218 300 H240"/>
+      <path class="ol electrical" d="M428 300 H450"/>
+      <path class="ol electrical" d="M638 300 H660"/>
+      <path class="ol electrical" d="M848 300 H870"/>
+
+      <!-- Unit transformer feeders -> common electrical bus in a low corridor -->
+      <path class="ol electrical" d="M261 335 V500"/>
+      <path class="ol electrical" d="M471 335 V500"/>
+      <path class="ol electrical" d="M681 335 V500"/>
+      <path class="ol electrical" d="M891 335 V500"/>
+      <path class="ol electrical" d="M261 500 H891"/>
+      <path class="ol electrical" d="M891 500 V535"/>
+
+      <!-- Condensate: each turbine drops to its cooling-water branch -->
+      <path class="ol condensate" d="M188 420 V455 H122 V485"/>
+      <path class="ol condensate" d="M398 420 V455 H342 V485"/>
+      <path class="ol condensate" d="M608 420 V455 H562 V485"/>
+      <path class="ol condensate" d="M818 420 V455 H782 V485"/>
+
+      <!-- Cooling supply header and four clean branches -->
+      <path class="ol cooling" d="M75 515 H925"/>
+      <path class="ol cooling" d="M122 515 V485"/>
+      <path class="ol cooling" d="M342 515 V485"/>
+      <path class="ol cooling" d="M562 515 V485"/>
+      <path class="ol cooling" d="M782 515 V485"/>
+
+      <!-- Cooling return header stays below the tower labels -->
+      <path class="ol cooling-return" d="M122 545 V565 H782 V545"/>
+      <path class="ol cooling-return" d="M342 545 V565"/>
+      <path class="ol cooling-return" d="M562 545 V565"/>
+
+      <!-- Auxiliary service bus in a separate upper corridor -->
+      <path class="ol auxiliary" d="M55 350 H945"/>
+      <path class="ol auxiliary" d="M188 350 V300"/>
+      <path class="ol auxiliary" d="M398 350 V300"/>
+      <path class="ol auxiliary" d="M608 350 V300"/>
+      <path class="ol auxiliary" d="M818 350 V300"/>
+
+      <g class="junctions">
+        <circle cx="116" cy="330" r="4"/><circle cx="326" cy="330" r="4"/>
+        <circle cx="536" cy="330" r="4"/><circle cx="746" cy="330" r="4"/>
+        <circle cx="122" cy="515" r="4"/><circle cx="342" cy="515" r="4"/>
+        <circle cx="562" cy="515" r="4"/><circle cx="782" cy="515" r="4"/>
+        <circle cx="261" cy="500" r="4"/><circle cx="471" cy="500" r="4"/>
+        <circle cx="681" cy="500" r="4"/><circle cx="891" cy="500" r="4"/>
+      </g>
+    </svg>
+
+    <!-- Legacy straight pipes remain disabled; routing above is the only network. -->
+    <!-- TRANSFORMERS -->
+
+    <div class="transformer tr1"
+         onclick="openObject('TRANSFORMER 01')"></div>
+
+    <div class="transformer tr2"
+         onclick="openObject('TRANSFORMER 02')"></div>
+
+    <div class="transformer tr3"
+         onclick="openObject('TRANSFORMER 03')"></div>
+
+    <div class="transformer tr4"
+         onclick="openObject('TRANSFORMER 04')"></div>
+
+</div>
+
+</div>
+</div>
+
+
+<!-- =====================================================
+     STATUS
+===================================================== -->
+
+<div class="panel">
+
+<div class="panel-head">
+    LIVE PLANT STATUS
+    <small>1 SEC REFRESH</small>
+</div>
+
+<div class="panel-body status-list">
+
+    <div class="status-row">
+        <span class="green"></span>
+        <span>Unit 01</span>
+        <span class="status-value"
+              id="unitStatus1">
+            NORMAL
+        </span>
+    </div>
+
+    <div class="status-row">
+        <span class="green"></span>
+        <span>Unit 02</span>
+        <span class="status-value"
+              id="unitStatus2">
+            NORMAL
+        </span>
+    </div>
+
+    <div class="status-row">
+        <span class="green"></span>
+        <span>Unit 03</span>
+        <span class="status-value"
+              id="unitStatus3">
+            NORMAL
+        </span>
+    </div>
+
+    <div class="status-row">
+        <span class="green"></span>
+        <span>Unit 04</span>
+        <span class="status-value"
+              id="unitStatus4">
+            NORMAL
+        </span>
+    </div>
+
+    <div class="status-row">
+        <span class="green"></span>
+        <span>Turbine Hall</span>
+        <span class="status-value">
+            NORMAL
+        </span>
+    </div>
+
+    <div class="status-row">
+        <span class="green"></span>
+        <span>Cooling System</span>
+        <span class="status-value">
+            NORMAL
+        </span>
+    </div>
+
+    <div class="status-row">
+        <span class="green"></span>
+        <span>Steam System</span>
+        <span class="status-value">
+            STABLE
+        </span>
+    </div>
+
+    <div class="status-row">
+        <span class="green"></span>
+        <span>Electrical Grid</span>
+        <span class="status-value">
+            CONNECTED
+        </span>
+    </div>
+
+    <div class="status-row">
+        <span class="green"></span>
+        <span>Water Treatment</span>
+        <span class="status-value">
+            NORMAL
+        </span>
+    </div>
+
+    <div class="status-row">
+        <span class="green"></span>
+        <span>Ventilation</span>
+        <span class="status-value">
+            NORMAL
+        </span>
+    </div>
+
+    <div class="status-row">
+        <span class="yellow"></span>
+        <span>Maintenance</span>
+        <span class="status-value">
+            03 OPEN
+        </span>
+    </div>
+
+    <div class="status-row">
+        <span class="green"></span>
+        <span>Communications</span>
+        <span class="status-value">
+            ONLINE
+        </span>
+    </div>
+
+</div>
+</div>
+
+
+<!-- =====================================================
+     LIVE TREND PANEL
+===================================================== -->
+
+<div class="panel">
+
+<div class="panel-head">
+    LIVE PROCESS TRENDS
+    <small>LAST 60 MIN</small>
+</div>
+
+<div class="panel-body">
+
+<div class="trend-grid">
+
+    <div class="mini-chart">
+
+        <div class="chart-title">
+            TOTAL OUTPUT
+        </div>
+
+        <div class="chart-value"
+             id="miniOutput">
+            3,200 MW
+        </div>
+
+        <svg
+            id="chartOutput"
+            viewBox="0 0 300 130"
+            preserveAspectRatio="none">
+
+            <path
+                id="grid1"
+                d="M0 30H300
+                   M0 60H300
+                   M0 90H300
+                   M0 120H300"
+                stroke="#ddd"
+                fill="none"/>
+
+            <polyline
+                id="lineOutput"
+                fill="none"
+                stroke="#4f8796"
+                stroke-width="2"
+                points="0,90 30,80 60,85 90,70 120,75 150,60 180,68 210,55 240,62 270,50 300,55"/>
+
+        </svg>
+
+    </div>
+
+
+    <div class="mini-chart">
+
+        <div class="chart-title">
+            COOLING
+        </div>
+
+        <div class="chart-value"
+             id="miniCooling">
+            31.4 °C
+        </div>
+
+        <svg
+            viewBox="0 0 300 130"
+            preserveAspectRatio="none">
+
+            <path
+                d="M0 30H300
+                   M0 60H300
+                   M0 90H300
+                   M0 120H300"
+                stroke="#ddd"
+                fill="none"/>
+
+            <polyline
+                id="lineCooling"
+                fill="none"
+                stroke="#668d9b"
+                stroke-width="2"
+                points="0,85 30,82 60,88 90,80 120,82 150,72 180,75 210,70 240,73 270,67 300,70"/>
+
+        </svg>
+
+    </div>
+
+
+    <div class="mini-chart">
+
+        <div class="chart-title">
+            GRID LOAD
+        </div>
+
+        <div class="chart-value"
+             id="miniGrid">
+            74 %
+        </div>
+
+        <svg
+            viewBox="0 0 300 130"
+            preserveAspectRatio="none">
+
+            <path
+                d="M0 30H300
+                   M0 60H300
+                   M0 90H300
+                   M0 120H300"
+                stroke="#ddd"
+                fill="none"/>
+
+            <polyline
+                id="lineGrid"
+                fill="none"
+                stroke="#668d9b"
+                stroke-width="2"
+                points="0,90 30,87 60,91 90,83 120,80 150,84 180,75 210,78 240,69 270,73 300,65"/>
+
+        </svg>
+
+    </div>
+
+
+    <div class="mini-chart">
+
+        <div class="chart-title">
+            STEAM SYSTEM
+        </div>
+
+        <div class="chart-value"
+             id="miniSteam">
+            82 %
+        </div>
+
+        <svg
+            viewBox="0 0 300 130"
+            preserveAspectRatio="none">
+
+            <path
+                d="M0 30H300
+                   M0 60H300
+                   M0 90H300
+                   M0 120H300"
+                stroke="#ddd"
+                fill="none"/>
+
+            <polyline
+                id="lineSteam"
+                fill="none"
+                stroke="#668d9b"
+                stroke-width="2"
+                points="0,80 30,76 60,80 90,73 120,77 150,68 180,72 210,66 240,69 270,63 300,66"/>
+
+        </svg>
+
+    </div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     REACTORS
+===================================================== -->
+
+<section id="reactors" class="page">
+
+<div class="detail-grid">
+
+
+<div class="panel">
+
+<div class="panel-head">
+    UNIT PERFORMANCE
+    <small>LIVE VALUES</small>
+</div>
+
+<div class="panel-body">
+
+<div class="instrument-grid">
+
+    <div class="instrument">
+        <div class="instrument-name">
+            UNIT 01 OUTPUT
+        </div>
+        <div class="instrument-value"
+             id="reactorPower1">
+            798
+        </div>
+        <div class="instrument-unit">
+            MW
+        </div>
+    </div>
+
+    <div class="instrument">
+        <div class="instrument-name">
+            UNIT 02 OUTPUT
+        </div>
+        <div class="instrument-value"
+             id="reactorPower2">
+            803
+        </div>
+        <div class="instrument-unit">
+            MW
+        </div>
+    </div>
+
+    <div class="instrument">
+        <div class="instrument-name">
+            UNIT 03 OUTPUT
+        </div>
+        <div class="instrument-value"
+             id="reactorPower3">
+            801
+        </div>
+        <div class="instrument-unit">
+            MW
+        </div>
+    </div>
+
+    <div class="instrument">
+        <div class="instrument-name">
+            UNIT 04 OUTPUT
+        </div>
+        <div class="instrument-value"
+             id="reactorPower4">
+            799
+        </div>
+        <div class="instrument-unit">
+            MW
+        </div>
+    </div>
+
+    <div class="instrument">
+        <div class="instrument-name">
+            TOTAL FACILITY
+        </div>
+        <div class="instrument-value"
+             id="totalPower">
+            3201
+        </div>
+        <div class="instrument-unit">
+            MW
+        </div>
+    </div>
+
+    <div class="instrument">
+        <div class="instrument-name">
+            AVAILABILITY
+        </div>
+        <div class="instrument-value"
+             id="availability">
+            99.8
+        </div>
+        <div class="instrument-unit">
+            %
+        </div>
+    </div>
+
+</div>
+
+</div>
+</div>
+
+
+<div class="panel">
+
+<div class="panel-head">
+    SYSTEM PARAMETERS
+</div>
+
+<div class="panel-body">
+
+<table class="data-table">
+
+<tr>
+<td>Primary system</td>
+<td id="primaryStatus">NORMAL</td>
+</tr>
+
+<tr>
+<td>Secondary system</td>
+<td>NORMAL</td>
+</tr>
+
+<tr>
+<td>Steam system</td>
+<td id="steamStatus">STABLE</td>
+</tr>
+
+<tr>
+<td>Cooling system</td>
+<td>NORMAL</td>
+</tr>
+
+<tr>
+<td>Instrumentation</td>
+<td>184 / 184</td>
+</tr>
+
+<tr>
+<td>Monitoring channels</td>
+<td>ACTIVE</td>
+</tr>
+
+<tr>
+<td>Communication</td>
+<td>ONLINE</td>
+</tr>
+
+<tr>
+<td>Data quality</td>
+<td>GOOD</td>
+</tr>
+
+<tr>
+<td>Last update</td>
+<td id="reactorUpdate">--:--:--</td>
+</tr>
+
+</table>
+
+</div>
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     TURBINES
+===================================================== -->
+
+<section id="turbines" class="page">
+
+<div class="equipment-grid">
+
+<!-- =====================================================
+     LANGUAGE SETTINGS
+===================================================== -->
+<div class="settings-modal" id="settingsModal" onclick="if(event.target===this) closeSettings()">
+    <div class="settings-box">
+        <div class="settings-head">
+            <span id="settingsTitle">Language / Sprache</span>
+            <button class="settings-close" onclick="closeSettings()">×</button>
+        </div>
+        <div class="settings-body">
+            <div class="language-grid">
+                <button class="language-choice active" data-lang="de" onclick="setLanguage('de');closeSettings()"><span class="language-flag">🇩🇪</span><span>Deutsch</span></button>
+                <button class="language-choice" data-lang="ru" onclick="setLanguage('ru');closeSettings()"><span class="language-flag">🇷🇺</span><span>Русский</span></button>
+                <button class="language-choice" data-lang="en" onclick="setLanguage('en');closeSettings()"><span class="language-flag">🇬🇧</span><span>English</span></button>
+                <button class="language-choice" data-lang="uk" onclick="setLanguage('uk');closeSettings()"><span class="language-flag">🇺🇦</span><span>Українська</span></button>
+                <button class="language-choice" data-lang="pl" onclick="setLanguage('pl');closeSettings()"><span class="language-flag">🇵🇱</span><span>Polski</span></button>
+            </div>
+            <div class="language-note" id="languageNote">Select the HMI language. The selected language is used throughout the interface.</div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+for(let i=1;i<=4;i++){
+
+document.write(`
+
+<div class="equipment-card"
+onclick="openObject('TURBINE GENERATOR ${String(i).padStart(2,'0')}')">
+
+<div class="equipment-head">
+
+TG-${String(i).padStart(2,'0')}
+
+<span style="margin-left:auto;color:#3c8339">
+●
+</span>
+
+</div>
+
+<div class="equipment-body">
+
+<div class="equip-line">
+<span>Output</span>
+<strong id="tg${i}">800 MW</strong>
+</div>
+
+<div class="equip-line">
+<span>Status</span>
+<strong>NORMAL</strong>
+</div>
+
+<div class="equip-line">
+<span>Generator</span>
+<strong>ONLINE</strong>
+</div>
+
+<div class="equip-line">
+<span>Monitoring</span>
+<strong>ACTIVE</strong>
+</div>
+
+</div>
+
+</div>
+
+`);
+
+}
+
+</script>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     COOLING
+===================================================== -->
+
+<section id="cooling" class="page">
+
+<div class="equipment-grid">
+
+<script>
+
+for(let i=1;i<=4;i++){
+
+document.write(`
+
+<div class="equipment-card"
+onclick="openObject('COOLING TOWER ${String(i).padStart(2,'0')}')">
+
+<div class="equipment-head">
+
+COOLING TOWER ${String(i).padStart(2,'0')}
+
+<span style="margin-left:auto;color:#3c8339">
+●
+</span>
+
+</div>
+
+<div class="equipment-body">
+
+<div class="equip-line">
+<span>Water temp.</span>
+<strong id="tower${i}">31.4 °C</strong>
+</div>
+
+<div class="equip-line">
+<span>Air flow</span>
+<strong>STABLE</strong>
+</div>
+
+<div class="equip-line">
+<span>Fans</span>
+<strong>MONITORED</strong>
+</div>
+
+<div class="equip-line">
+<span>Condition</span>
+<strong>NORMAL</strong>
+</div>
+
+</div>
+
+</div>
+
+`);
+
+}
+
+</script>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     STEAM / WATER
+===================================================== -->
+
+<section id="steam" class="page">
+
+<div class="detail-grid">
+
+<div class="panel">
+
+<div class="panel-head">
+    STEAM / WATER SYSTEM
+</div>
+
+<div class="panel-body">
+
+<table class="data-table">
+
+<tr>
+<td>Steam system status</td>
+<td>STABLE</td>
+</tr>
+
+<tr>
+<td>Condensate system</td>
+<td>ONLINE</td>
+</tr>
+
+<tr>
+<td>Feedwater system</td>
+<td>NORMAL</td>
+</tr>
+
+<tr>
+<td>Water treatment</td>
+<td>ONLINE</td>
+</tr>
+
+<tr>
+<td>Heat exchangers</td>
+<td>4 / 4</td>
+</tr>
+
+<tr>
+<td>Monitoring channels</td>
+<td>ACTIVE</td>
+</tr>
+
+</table>
+
+</div>
+</div>
+
+
+<div class="panel">
+
+<div class="panel-head">
+    LIVE MEASUREMENTS
+</div>
+
+<div class="panel-body">
+
+<div class="instrument-grid">
+
+<div class="instrument">
+
+<div class="instrument-name">
+STEAM FLOW
+</div>
+
+<div class="instrument-value"
+id="steamFlow">
+82
+</div>
+
+<div class="instrument-unit">
+% reference
+</div>
+
+</div>
+
+
+<div class="instrument">
+
+<div class="instrument-name">
+CONDENSATE
+</div>
+
+<div class="instrument-value"
+id="condensate">
+74
+</div>
+
+<div class="instrument-unit">
+% reference
+</div>
+
+</div>
+
+
+<div class="instrument">
+
+<div class="instrument-name">
+FEEDWATER
+</div>
+
+<div class="instrument-value"
+id="feedwater">
+79
+</div>
+
+<div class="instrument-unit">
+% reference
+</div>
+
+</div>
+
+
+<div class="instrument">
+
+<div class="instrument-name">
+WATER QUALITY
+</div>
+
+<div class="instrument-value">
+NORMAL
+</div>
+
+<div class="instrument-unit">
+monitoring
+</div>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     ELECTRICAL
+===================================================== -->
+
+<section id="electrical" class="page">
+
+<div class="detail-grid">
+
+<div class="panel">
+
+<div class="panel-head">
+    ELECTRICAL DISTRIBUTION
+</div>
+
+<div class="panel-body">
+
+<table class="data-table">
+
+<tr>
+<td>Grid connection</td>
+<td>CONNECTED</td>
+</tr>
+
+<tr>
+<td>Main bus A</td>
+<td>NORMAL</td>
+</tr>
+
+<tr>
+<td>Main bus B</td>
+<td>NORMAL</td>
+</tr>
+
+<tr>
+<td>Transformer group</td>
+<td>ONLINE</td>
+</tr>
+
+<tr>
+<td>Auxiliary power</td>
+<td>NORMAL</td>
+</tr>
+
+<tr>
+<td>Emergency supply</td>
+<td>READY</td>
+</tr>
+
+<tr>
+<td>Switchyard</td>
+<td>CONNECTED</td>
+</tr>
+
+</table>
+
+</div>
+</div>
+
+
+<div class="panel">
+
+<div class="panel-head">
+    LIVE ELECTRICAL DATA
+</div>
+
+<div class="panel-body">
+
+<div class="instrument-grid">
+
+<div class="instrument">
+
+<div class="instrument-name">
+TOTAL OUTPUT
+</div>
+
+<div class="instrument-value"
+id="electricalOutput">
+3200
+</div>
+
+<div class="instrument-unit">
+MW
+</div>
+
+</div>
+
+
+<div class="instrument">
+
+<div class="instrument-name">
+GRID LOAD
+</div>
+
+<div class="instrument-value"
+id="gridLoad">
+74
+</div>
+
+<div class="instrument-unit">
+%
+</div>
+
+</div>
+
+
+<div class="instrument">
+
+<div class="instrument-name">
+PLANT AUXILIARY
+</div>
+
+<div class="instrument-value"
+id="auxLoad">
+6.4
+</div>
+
+<div class="instrument-unit">
+%
+</div>
+
+</div>
+
+
+<div class="instrument">
+
+<div class="instrument-name">
+GRID STATUS
+</div>
+
+<div class="instrument-value">
+CONNECTED
+</div>
+
+<div class="instrument-unit">
+system
+</div>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     AUXILIARY
+===================================================== -->
+
+<section id="auxiliary" class="page">
+
+<div class="equipment-grid">
+
+<script>
+
+const auxiliarySystems=[
+"VENTILATION SYSTEM",
+"WATER TREATMENT",
+"FIRE PROTECTION",
+"COMPRESSED AIR",
+"SERVICE WATER",
+"EMERGENCY POWER",
+"BUILDING MONITORING",
+"LIGHTING SYSTEM",
+"DRAINAGE SYSTEM",
+"COMMUNICATIONS",
+"INSTRUMENT AIR",
+"MAINTENANCE SYSTEM"
+];
+
+auxiliarySystems.forEach((name,i)=>{
+
+document.write(`
+
+<div class="equipment-card"
+onclick="openObject('${name}')">
+
+<div class="equipment-head">
+
+${name}
+
+<span style="margin-left:auto;color:#3c8339">
+●
+</span>
+
+</div>
+
+<div class="equipment-body">
+
+<div class="equip-line">
+<span>Status</span>
+<strong>NORMAL</strong>
+</div>
+
+<div class="equip-line">
+<span>Monitoring</span>
+<strong>ACTIVE</strong>
+</div>
+
+<div class="equip-line">
+<span>Availability</span>
+<strong>${98+(i%3)/2}%</strong>
+</div>
+
+<div class="equip-line">
+<span>Diagnostic</span>
+<strong>OK</strong>
+</div>
+
+</div>
+
+</div>
+
+`);
+
+});
+
+</script>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     TRENDS
+===================================================== -->
+
+<section id="trends" class="page">
+
+<div class="full-trends">
+
+
+<div class="large-chart">
+
+<div class="large-chart-title">
+TOTAL FACILITY OUTPUT
+</div>
+
+<div class="large-chart-value"
+id="trendPower">
+3200 MW
+</div>
+
+<svg
+viewBox="0 0 600 300"
+preserveAspectRatio="none">
+
+<path
+d="M0 60H600
+M0 120H600
+M0 180H600
+M0 240H600"
+stroke="#d4d4d4"
+fill="none"/>
+
+<polyline
+id="largePowerLine"
+fill="none"
+stroke="#4f8796"
+stroke-width="3"
+points="0,220 40,215 80,205 120,210 160,195 200,200 240,185 280,190 320,178 360,183 400,168 440,175 480,160 520,165 560,153 600,158"/>
+
+</svg>
+
+</div>
+
+
+<div class="large-chart">
+
+<div class="large-chart-title">
+COOLING SYSTEM
+</div>
+
+<div class="large-chart-value"
+id="trendCooling">
+31.4 °C
+</div>
+
+<svg
+viewBox="0 0 600 300"
+preserveAspectRatio="none">
+
+<path
+d="M0 60H600
+M0 120H600
+M0 180H600
+M0 240H600"
+stroke="#d4d4d4"
+fill="none"/>
+
+<polyline
+id="largeCoolingLine"
+fill="none"
+stroke="#668d9b"
+stroke-width="3"
+points="0,170 50,168 100,174 150,165 200,160 250,164 300,150 350,155 400,145 450,148 500,137 550,143 600,136"/>
+
+</svg>
+
+</div>
+
+
+<div class="large-chart">
+
+<div class="large-chart-title">
+GRID LOAD
+</div>
+
+<div class="large-chart-value"
+id="trendGrid">
+74 %
+</div>
+
+<svg
+viewBox="0 0 600 300"
+preserveAspectRatio="none">
+
+<path
+d="M0 60H600
+M0 120H600
+M0 180H600
+M0 240H600"
+stroke="#d4d4d4"
+fill="none"/>
+
+<polyline
+id="largeGridLine"
+fill="none"
+stroke="#668d9b"
+stroke-width="3"
+points="0,220 50,215 100,218 150,205 200,210 250,198 300,202 350,190 400,194 450,180 500,186 550,175 600,180"/>
+
+</svg>
+
+</div>
+
+
+<div class="large-chart">
+
+<div class="large-chart-title">
+STEAM SYSTEM
+</div>
+
+<div class="large-chart-value"
+id="trendSteam">
+82 %
+</div>
+
+<svg
+viewBox="0 0 600 300"
+preserveAspectRatio="none">
+
+<path
+d="M0 60H600
+M0 120H600
+M0 180H600
+M0 240H600"
+stroke="#d4d4d4"
+fill="none"/>
+
+<polyline
+id="largeSteamLine"
+fill="none"
+stroke="#668d9b"
+stroke-width="3"
+points="0,190 50,185 100,188 150,177 200,180 250,170 300,173 350,162 400,166 450,155 500,158 550,150 600,154"/>
+
+</svg>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     EVENTS
+===================================================== -->
+
+<section id="alarms" class="page">
+
+<div class="panel">
+
+<div class="panel-head">
+
+EVENT AND STATUS LIST
+
+<small>
+<span id="activeEvents">03</span>
+ACTIVE / 127 HISTORICAL
+</small>
+
+</div>
+
+<div class="panel-body">
+
+<table class="alarm-table">
+
+<thead>
+
+<tr>
+<th>TIME</th>
+<th>STATE</th>
+<th>SYSTEM</th>
+<th>DESCRIPTION</th>
+<th>STATUS</th>
+</tr>
+
+</thead>
+
+<tbody id="eventTable">
+
+<tr>
+<td>14:32:07</td>
+<td><span class="yellow"></span></td>
+<td>Maintenance</td>
+<td>Scheduled inspection record updated</td>
+<td>ACKNOWLEDGED</td>
+</tr>
+
+<tr>
+<td>14:18:41</td>
+<td><span class="yellow"></span></td>
+<td>Instrumentation</td>
+<td>Diagnostic information available</td>
+<td>ACKNOWLEDGED</td>
+</tr>
+
+<tr>
+<td>13:56:12</td>
+<td><span class="yellow"></span></td>
+<td>Cooling</td>
+<td>Routine equipment status message</td>
+<td>INFORMATION</td>
+</tr>
+
+<tr>
+<td>13:42:08</td>
+<td><span class="green"></span></td>
+<td>Unit 04</td>
+<td>System status confirmed normal</td>
+<td>CLOSED</td>
+</tr>
+
+<tr>
+<td>13:17:53</td>
+<td><span class="green"></span></td>
+<td>Electrical</td>
+<td>Routine monitoring update</td>
+<td>CLOSED</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     LOG
+===================================================== -->
+
+<section id="log" class="page">
+
+<div class="panel"
+style="height:100%">
+
+<div class="panel-head">
+    SYSTEM EVENT LOG
+</div>
+
+<div class="panel-body">
+
+<div class="log"
+id="systemLog">
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     EQUIPMENT
+===================================================== -->
+
+<section id="equipment" class="page">
+
+<div class="equipment-grid">
+
+<script>
+
+const equipmentNames=[
+"PRIMARY COOLING PUMP A",
+"PRIMARY COOLING PUMP B",
+"SECONDARY PUMP A",
+"SECONDARY PUMP B",
+"FEEDWATER SYSTEM A",
+"FEEDWATER SYSTEM B",
+"CONDENSER A",
+"CONDENSER B",
+"HEAT EXCHANGER 01",
+"HEAT EXCHANGER 02",
+"VENTILATION SYSTEM",
+"WATER TREATMENT"
+];
+
+equipmentNames.forEach((name,i)=>{
+
+document.write(`
+
+<div class="equipment-card"
+onclick="openObject('${name}')">
+
+<div class="equipment-head">
+${name}
+
+<span style="margin-left:auto;color:#3c8339">
+●
+</span>
+
+</div>
+
+<div class="equipment-body">
+
+<div class="equip-line">
+<span>Condition</span>
+<strong>NORMAL</strong>
+</div>
+
+<div class="equip-line">
+<span>Monitoring</span>
+<strong>ACTIVE</strong>
+</div>
+
+<div class="equip-line">
+<span>Diagnostic</span>
+<strong>OK</strong>
+</div>
+
+<div class="equip-line">
+<span>Load</span>
+<strong id="equipment${i}">
+${60+i*2}%
+</strong>
+</div>
+
+</div>
+
+</div>
+
+`);
+
+});
+
+</script>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     INSTRUMENTATION
+===================================================== -->
+
+<section id="instrumentation" class="page">
+
+<div class="panel">
+
+<div class="panel-head">
+    INSTRUMENTATION STATUS
+</div>
+
+<div class="panel-body">
+
+<div class="instrument-grid">
+
+<script>
+
+const instruments=[
+
+["PRESSURE SENSORS","48 / 48","ONLINE"],
+["TEMPERATURE SENSORS","64 / 64","ONLINE"],
+["FLOW SENSORS","32 / 32","ONLINE"],
+["LEVEL SENSORS","24 / 24","ONLINE"],
+["VIBRATION MONITORS","16 / 16","ONLINE"],
+["ENVIRONMENTAL","12 / 12","ONLINE"],
+["PROCESS ANALYZERS","18 / 18","ONLINE"],
+["SAFETY MONITORS","28 / 28","ONLINE"],
+["CONTROL NETWORK","ACTIVE","ONLINE"],
+["DATA ACQUISITION","ACTIVE","ONLINE"],
+["TIME SYNCHRONIZATION","LOCKED","ONLINE"],
+["ARCHIVE SYSTEM","ACTIVE","ONLINE"]
+
+];
+
+instruments.forEach(x=>{
+
+document.write(`
+
+<div class="instrument">
+
+<div class="instrument-name">
+${x[0]}
+</div>
+
+<div class="instrument-value">
+${x[1]}
+</div>
+
+<div class="instrument-unit">
+${x[2]}
+</div>
+
+</div>
+
+`);
+
+});
+
+</script>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     ENVIRONMENT
+===================================================== -->
+
+<section id="environment" class="page">
+
+<div class="detail-grid">
+
+
+<div class="panel">
+
+<div class="panel-head">
+    ENVIRONMENTAL MONITORING
+</div>
+
+<div class="panel-body">
+
+<table class="data-table">
+
+<tr>
+<td>Air monitoring</td>
+<td>NORMAL</td>
+</tr>
+
+<tr>
+<td>Water monitoring</td>
+<td>NORMAL</td>
+</tr>
+
+<tr>
+<td>Weather station</td>
+<td>ONLINE</td>
+</tr>
+
+<tr>
+<td>Site monitoring</td>
+<td>NORMAL</td>
+</tr>
+
+<tr>
+<td>Perimeter monitoring</td>
+<td>ONLINE</td>
+</tr>
+
+<tr>
+<td>Data acquisition</td>
+<td>ACTIVE</td>
+</tr>
+
+</table>
+
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<div class="panel-head">
+    LIVE ENVIRONMENT DATA
+</div>
+
+<div class="panel-body">
+
+<div class="instrument-grid">
+
+<div class="instrument">
+
+<div class="instrument-name">
+OUTSIDE TEMP.
+</div>
+
+<div class="instrument-value"
+id="outsideTemp">
+18.4
+</div>
+
+<div class="instrument-unit">
+°C
+</div>
+
+</div>
+
+
+<div class="instrument">
+
+<div class="instrument-name">
+HUMIDITY
+</div>
+
+<div class="instrument-value"
+id="humidity">
+64
+</div>
+
+<div class="instrument-unit">
+%
+</div>
+
+</div>
+
+
+<div class="instrument">
+
+<div class="instrument-name">
+WIND SPEED
+</div>
+
+<div class="instrument-value"
+id="wind">
+4.8
+</div>
+
+<div class="instrument-unit">
+m/s
+</div>
+
+</div>
+
+
+<div class="instrument">
+
+<div class="instrument-name">
+SITE STATUS
+</div>
+
+<div class="instrument-value">
+NORMAL
+</div>
+
+<div class="instrument-unit">
+monitoring
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     GRID
+===================================================== -->
+
+<section id="grid" class="page">
+
+<div class="detail-grid">
+
+<div class="panel">
+
+<div class="panel-head">
+    GRID / SWITCHYARD
+</div>
+
+<div class="panel-body">
+
+<table class="data-table">
+
+<tr>
+<td>Grid connection</td>
+<td>CONNECTED</td>
+</tr>
+
+<tr>
+<td>Switchyard</td>
+<td>NORMAL</td>
+</tr>
+
+<tr>
+<td>Main bus A</td>
+<td>ONLINE</td>
+</tr>
+
+<tr>
+<td>Main bus B</td>
+<td>ONLINE</td>
+</tr>
+
+<tr>
+<td>Export monitoring</td>
+<td>ACTIVE</td>
+</tr>
+
+<tr>
+<td>Protection system</td>
+<td>READY</td>
+</tr>
+
+</table>
+
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<div class="panel-head">
+    GRID PARAMETERS
+</div>
+
+<div class="panel-body">
+
+<div class="instrument-grid">
+
+<div class="instrument">
+
+<div class="instrument-name">
+GRID LOAD
+</div>
+
+<div class="instrument-value"
+id="gridPageLoad">
+74
+</div>
+
+<div class="instrument-unit">
+%
+</div>
+
+</div>
+
+
+<div class="instrument">
+
+<div class="instrument-name">
+PLANT OUTPUT
+</div>
+
+<div class="instrument-value"
+id="gridPageOutput">
+3200
+</div>
+
+<div class="instrument-unit">
+MW
+</div>
+
+</div>
+
+
+<div class="instrument">
+
+<div class="instrument-name">
+AUXILIARY LOAD
+</div>
+
+<div class="instrument-value"
+id="gridAux">
+6.4
+</div>
+
+<div class="instrument-unit">
+%
+</div>
+
+</div>
+
+
+<div class="instrument">
+
+<div class="instrument-name">
+GRID STATE
+</div>
+
+<div class="instrument-value">
+CONNECTED
+</div>
+
+<div class="instrument-unit">
+system
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     COMMUNICATIONS
+===================================================== -->
+
+<section id="communications" class="page">
+
+<div class="panel">
+
+<div class="panel-head">
+    COMMUNICATION AND DATA SYSTEMS
+</div>
+
+<div class="panel-body">
+
+<table class="data-table">
+
+<tr>
+<td>Plant network</td>
+<td>ONLINE</td>
+</tr>
+
+<tr>
+<td>Control network</td>
+<td>ONLINE</td>
+</tr>
+
+<tr>
+<td>Historian</td>
+<td>ONLINE</td>
+</tr>
+
+<tr>
+<td>Time synchronization</td>
+<td>LOCKED</td>
+</tr>
+
+<tr>
+<td>Data archive</td>
+<td>ACTIVE</td>
+</tr>
+
+<tr>
+<td>Operator terminals</td>
+<td>CONNECTED</td>
+</tr>
+
+<tr>
+<td>Engineering workstation</td>
+<td>CONNECTED</td>
+</tr>
+
+<tr>
+<td>Remote monitoring</td>
+<td>AVAILABLE</td>
+</tr>
+
+</table>
+
+</div>
+
+</div>
+
+</section>
+
+
+</div>
+</main>
+</div>
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<footer class="footer">
+
+<span>
+CENTRAL MONITORING / SYSTEM STATUS:
+<strong id="footerStatus">NORMAL</strong>
+</span>
+
+<span class="footer-right">
+HMI BUILD 04.18 |
+LIVE DATA |
+REFRESH 1s
+</span>
+
+</footer>
+
+</div>
+
+
+<!-- =====================================================
+     MODAL
+===================================================== -->
+
+<div class="modal"
+id="objectModal">
+
+<div class="modal-box">
+
+<div class="modal-head">
+
+<span id="modalTitle">
+OBJECT DETAILS
+</span>
+
+<button class="close"
+onclick="closeModal()">
+×
+</button>
+
+</div>
+
+
+<div class="modal-content">
+
+
+<div class="detail-block">
+
+<div class="detail-block-title">
+CURRENT STATUS
+</div>
+
+<div class="detail-row">
+<span>System state</span>
+<strong id="modalState">
+NORMAL
+</strong>
+</div>
+
+<div class="detail-row">
+<span>Monitoring</span>
+<strong>
+ACTIVE
+</strong>
+</div>
+
+<div class="detail-row">
+<span>Communication</span>
+<strong>
+ONLINE
+</strong>
+</div>
+
+</div>
+
+
+<div class="detail-block">
+
+<div class="detail-block-title">
+LIVE VALUES
+</div>
+
+<div class="detail-row">
+<span>Load / activity</span>
+<strong id="modalLoad">
+72 %
+</strong>
+</div>
+
+<div class="detail-row">
+<span>Temperature reference</span>
+<strong id="modalTemp">
+31.4 °C
+</strong>
+</div>
+
+<div class="detail-row">
+<span>Data quality</span>
+<strong>
+GOOD
+</strong>
+</div>
+
+</div>
+
+
+<div class="detail-block">
+
+<div class="detail-block-title">
+DIAGNOSTICS
+</div>
+
+<div class="detail-row">
+<span>Instrumentation</span>
+<strong>
+OK
+</strong>
+</div>
+
+<div class="detail-row">
+<span>Diagnostic channel</span>
+<strong>
+AVAILABLE
+</strong>
+</div>
+
+<div class="detail-row">
+<span>Last update</span>
+<strong id="modalTime">
+--:--:--
+</strong>
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   PAGE NAMES
+========================================================= */
+
+const pageNames={
+
+    overview:"Plant Overview",
+    reactors:"Reactor Systems",
+    turbines:"Turbine Hall",
+    cooling:"Cooling System",
+    steam:"Steam / Water Systems",
+    electrical:"Electrical Distribution",
+    auxiliary:"Auxiliary Systems",
+    trends:"Process Trends",
+    alarms:"Event & Status List",
+    log:"System Event Log",
+    equipment:"Equipment Monitoring",
+    instrumentation:"Instrumentation",
+    environment:"Environmental Monitoring",
+    grid:"Grid / Switchyard",
+    communications:"Communications"
+
+};
+
+
+/* =========================================================
+   MULTI-LANGUAGE HMI
+========================================================= */
+
+const translations = {
+    de: {
+        "Plant Overview":"Kraftwerksübersicht",
+        "Reactor Systems":"Reaktorsysteme",
+        "Turbine Hall":"Turbinenhalle",
+        "Cooling System":"Kühlsystem",
+        "Steam / Water Systems":"Dampf / Wasser-Systeme",
+        "Electrical Distribution":"Elektrische Verteilung",
+        "Auxiliary Systems":"Hilfssysteme",
+        "Process Trends":"Prozesstrends",
+        "Event & Status List":"Ereignis- & Statusliste",
+        "System Event Log":"Systemereignisprotokoll",
+        "Equipment Monitoring":"Anlagenüberwachung",
+        "Instrumentation":"Messtechnik",
+        "Environmental Monitoring":"Umweltüberwachung",
+        "Grid / Switchyard":"Netz / Schaltanlage",
+        "Communications":"Kommunikation",
+        "Plant navigation":"Kraftwerksnavigation",
+        "Systems":"Systeme",
+        "SYSTEM":"SYSTEM",
+        "NETWORK":"NETZWERK",
+        "EVENTS":"EREIGNISSE",
+        "CENTRAL MONITORING SYSTEM / ONLINE":"ZENTRALES ÜBERWACHUNGSSYSTEM / ONLINE",
+        "POWER GENERATION FACILITY — CENTRAL MONITORING":"ENERGIEERZEUGUNGSANLAGE — ZENTRALE ÜBERWACHUNG",
+        "Language / Sprache":"Sprache / Language",
+        "Settings":"Einstellungen",
+        "Select the HMI language. The selected language is used throughout the interface.":"HMI-Sprache auswählen. Die gewählte Sprache wird in der gesamten Oberfläche verwendet.",
+        "ONLINE":"ONLINE","NORMAL":"NORMAL","READY":"BEREIT","AVAILABLE":"VERFÜGBAR","CONNECTED":"VERBUNDEN",
+        "GOOD":"GUT","STABLE":"STABIL","MONITORED":"ÜBERWACHT","LOCKED":"GESPERRT","CLOSED":"GESCHLOSSEN","ACTIVE":"AKTIV","ACKNOWLEDGED":"BESTÄTIGT",
+        "Status":"Status","Condition":"Zustand","Output":"Leistung","Load":"Last","Temperature":"Temperatur","Water temp.":"Wassertemp.","Cooling":"Kühlung","Generator":"Generator","Grid connection":"Netzanschluss","Steam System":"Dampfsystem","Steam system":"Dampfsystem","Cooling system":"Kühlsystem","Maintenance":"Wartung","Monitoring":"Überwachung","Electrical":"Elektrik","Communication":"Kommunikation","Communications":"Kommunikation","Air monitoring":"Luftüberwachung","Air flow":"Luftstrom","Auxiliary power":"Hilfsenergie","Availability":"Verfügbarkeit","Condensate system":"Kondensatsystem","Control network":"Steuernetzwerk","Data acquisition":"Datenerfassung","Data archive":"Datenarchiv","Data quality":"Datenqualität","Diagnostic":"Diagnose","Diagnostic channel":"Diagnosekanal","Emergency supply":"Notstromversorgung","Engineering workstation":"Engineering-Arbeitsplatz","Export monitoring":"Exportüberwachung","Fans":"Ventilatoren","Feedwater system":"Speisewassersystem","Heat exchangers":"Wärmetauscher","Historian":"Historian","Main bus A":"Hauptsammelschiene A","Main bus B":"Hauptsammelschiene B","Monitoring channels":"Überwachungskanäle","Operator terminals":"Bedienplätze","Plant network":"Kraftwerksnetz","Primary system":"Primärsystem","Protection system":"Schutzsystem","Remote monitoring":"Fernüberwachung","Secondary system":"Sekundärsystem","Site monitoring":"Standortüberwachung","Switchyard":"Schaltanlage","System state":"Systemzustand","System status confirmed normal":"Systemstatus normal bestätigt","Temperature reference":"Temperaturreferenz","Time synchronization":"Zeitsynchronisation","Transformer group":"Transformatoreinheit","Ventilation":"Lüftung","Water Treatment":"Wasseraufbereitung","Water monitoring":"Wasserüberwachung","Water treatment":"Wasseraufbereitung","Weather station":"Wetterstation",
+        "Unit 01":"Block 01","Unit 02":"Block 02","Unit 03":"Block 03","Unit 04":"Block 04",
+        "PROCESS AREA / ALL UNITS":"PROZESSBEREICH / ALLE BLÖCKE","LIVE VALUES":"LIVE-WERTE","LAST 60 MIN":"LETZTE 60 MIN","TIME":"ZEIT","DESCRIPTION":"BESCHREIBUNG","STATE":"ZUSTAND","STATUS":"STATUS","INFORMATION":"INFORMATION","Last update":"Letzte Aktualisierung","1 SEC REFRESH":"1 SEK. AKTUALISIERUNG"
+    },
+    ru: {}, en: {}, uk: {}, pl: {}
+};
+
+translations.en = {
+    "Plant Overview":"Plant Overview","Reactor Systems":"Reactor Systems","Turbine Hall":"Turbine Hall","Cooling System":"Cooling System","Steam / Water Systems":"Steam / Water Systems","Electrical Distribution":"Electrical Distribution","Auxiliary Systems":"Auxiliary Systems","Process Trends":"Process Trends","Event & Status List":"Event & Status List","System Event Log":"System Event Log","Equipment Monitoring":"Equipment Monitoring","Instrumentation":"Instrumentation","Environmental Monitoring":"Environmental Monitoring","Grid / Switchyard":"Grid / Switchyard","Communications":"Communications","Plant navigation":"Plant navigation","Systems":"Systems","SYSTEM":"SYSTEM","NETWORK":"NETWORK","EVENTS":"EVENTS","CENTRAL MONITORING SYSTEM / ONLINE":"CENTRAL MONITORING SYSTEM / ONLINE","POWER GENERATION FACILITY — CENTRAL MONITORING":"POWER GENERATION FACILITY — CENTRAL MONITORING","Language / Sprache":"Language / Settings","Settings":"Settings","Select the HMI language. The selected language is used throughout the interface.":"Select the HMI language. The selected language is used throughout the interface."
+};
+
+translations.ru = {
+    "Plant Overview":"Обзор станции","Reactor Systems":"Реакторные системы","Turbine Hall":"Турбинный зал","Cooling System":"Система охлаждения","Steam / Water Systems":"Пар / водяные системы","Electrical Distribution":"Электрораспределение","Auxiliary Systems":"Вспомогательные системы","Process Trends":"Тренды процессов","Event & Status List":"События и состояния","System Event Log":"Журнал системных событий","Equipment Monitoring":"Контроль оборудования","Instrumentation":"Контрольно-измерительные приборы","Environmental Monitoring":"Экологический контроль","Grid / Switchyard":"Сеть / ОРУ","Communications":"Связь","Plant navigation":"Навигация станции","Systems":"Системы","SYSTEM":"СИСТЕМА","NETWORK":"СЕТЬ","EVENTS":"СОБЫТИЯ","CENTRAL MONITORING SYSTEM / ONLINE":"ЦЕНТРАЛЬНАЯ СИСТЕМА КОНТРОЛЯ / ОНЛАЙН","POWER GENERATION FACILITY — CENTRAL MONITORING":"ЭНЕРГЕТИЧЕСКАЯ УСТАНОВКА — ЦЕНТРАЛЬНЫЙ КОНТРОЛЬ","Language / Sprache":"Язык / Настройки","Settings":"Настройки","Select the HMI language. The selected language is used throughout the interface.":"Выберите язык HMI. Выбранный язык используется во всём интерфейсе.","Status":"Состояние","Condition":"Состояние","Output":"Мощность","Load":"Нагрузка","Temperature":"Температура","Cooling":"Охлаждение","Generator":"Генератор","Grid connection":"Подключение к сети","Maintenance":"Техническое обслуживание","Monitoring":"Мониторинг","Electrical":"Электрика","Communication":"Связь","Communications":"Связь","Unit 01":"Блок 01","Unit 02":"Блок 02","Unit 03":"Блок 03","Unit 04":"Блок 04","PROCESS AREA / ALL UNITS":"ТЕХНОЛОГИЧЕСКАЯ ЗОНА / ВСЕ БЛОКИ","LIVE VALUES":"ТЕКУЩИЕ ЗНАЧЕНИЯ","LAST 60 MIN":"ПОСЛЕДНИЕ 60 МИН","TIME":"ВРЕМЯ","DESCRIPTION":"ОПИСАНИЕ","STATE":"СОСТОЯНИЕ","STATUS":"СТАТУС","INFORMATION":"ИНФОРМАЦИЯ","Last update":"Последнее обновление","1 SEC REFRESH":"ОБНОВЛЕНИЕ 1 СЕК"
+};
+
+translations.uk = {
+    "Plant Overview":"Огляд станції","Reactor Systems":"Реакторні системи","Turbine Hall":"Турбінний зал","Cooling System":"Система охолодження","Steam / Water Systems":"Парові / водяні системи","Electrical Distribution":"Електророзподіл","Auxiliary Systems":"Допоміжні системи","Process Trends":"Тренди процесів","Event & Status List":"Події та стани","System Event Log":"Журнал системних подій","Equipment Monitoring":"Контроль обладнання","Instrumentation":"Контрольно-вимірювальні прилади","Environmental Monitoring":"Екологічний контроль","Grid / Switchyard":"Мережа / ВРУ","Communications":"Зв'язок","Plant navigation":"Навігація станції","Systems":"Системи","SYSTEM":"СИСТЕМА","NETWORK":"МЕРЕЖА","EVENTS":"ПОДІЇ","CENTRAL MONITORING SYSTEM / ONLINE":"ЦЕНТРАЛЬНА СИСТЕМА КОНТРОЛЮ / ОНЛАЙН","POWER GENERATION FACILITY — CENTRAL MONITORING":"ЕНЕРГЕТИЧНА УСТАНОВКА — ЦЕНТРАЛЬНИЙ КОНТРОЛЬ","Language / Sprache":"Мова / Налаштування","Settings":"Налаштування","Select the HMI language. The selected language is used throughout the interface.":"Оберіть мову HMI. Вибрана мова використовується в усьому інтерфейсі.","Status":"Стан","Condition":"Стан","Output":"Потужність","Load":"Навантаження","Temperature":"Температура","Cooling":"Охолодження","Generator":"Генератор","Grid connection":"Підключення до мережі","Maintenance":"Технічне обслуговування","Monitoring":"Моніторинг","Electrical":"Електрика","Communication":"Зв'язок","Communications":"Зв'язок","Unit 01":"Блок 01","Unit 02":"Блок 02","Unit 03":"Блок 03","Unit 04":"Блок 04","PROCESS AREA / ALL UNITS":"ТЕХНОЛОГІЧНА ЗОНА / УСІ БЛОКИ","LIVE VALUES":"ПОТОЧНІ ЗНАЧЕННЯ","LAST 60 MIN":"ОСТАННІ 60 ХВ","TIME":"ЧАС","DESCRIPTION":"ОПИС","STATE":"СТАН","STATUS":"СТАТУС","INFORMATION":"ІНФОРМАЦІЯ","Last update":"Останнє оновлення","1 SEC REFRESH":"ОНОВЛЕННЯ 1 СЕК"
+};
+
+translations.pl = {
+    "Plant Overview":"Przegląd elektrowni","Reactor Systems":"Systemy reaktorów","Turbine Hall":"Hala turbin","Cooling System":"System chłodzenia","Steam / Water Systems":"Systemy pary / wody","Electrical Distribution":"Rozdział energii elektrycznej","Auxiliary Systems":"Systemy pomocnicze","Process Trends":"Trendy procesowe","Event & Status List":"Lista zdarzeń i stanów","System Event Log":"Dziennik zdarzeń systemowych","Equipment Monitoring":"Monitoring urządzeń","Instrumentation":"Oprzyrządowanie","Environmental Monitoring":"Monitoring środowiska","Grid / Switchyard":"Sieć / rozdzielnia","Communications":"Łączność","Plant navigation":"Nawigacja elektrowni","Systems":"Systemy","SYSTEM":"SYSTEM","NETWORK":"SIEĆ","EVENTS":"ZDARZENIA","CENTRAL MONITORING SYSTEM / ONLINE":"CENTRALNY SYSTEM MONITOROWANIA / ONLINE","POWER GENERATION FACILITY — CENTRAL MONITORING":"OBIEKT WYTWARZANIA ENERGII — MONITORING CENTRALNY","Language / Sprache":"Język / Ustawienia","Settings":"Ustawienia","Select the HMI language. The selected language is used throughout the interface.":"Wybierz język HMI. Wybrany język jest używany w całym interfejsie.","Status":"Stan","Condition":"Stan","Output":"Moc","Load":"Obciążenie","Temperature":"Temperatura","Cooling":"Chłodzenie","Generator":"Generator","Grid connection":"Połączenie z siecią","Maintenance":"Konserwacja","Monitoring":"Monitoring","Electrical":"Elektryka","Communication":"Łączność","Communications":"Łączność","Unit 01":"Blok 01","Unit 02":"Blok 02","Unit 03":"Blok 03","Unit 04":"Blok 04","PROCESS AREA / ALL UNITS":"OBSZAR PROCESU / WSZYSTKIE BLOKI","LIVE VALUES":"WARTOŚCI NA ŻYWO","LAST 60 MIN":"OSTATNIE 60 MIN","TIME":"CZAS","DESCRIPTION":"OPIS","STATE":"STAN","STATUS":"STATUS","INFORMATION":"INFORMACJA","Last update":"Ostatnia aktualizacja","1 SEC REFRESH":"ODŚWIEŻANIE 1 SEK"
+};
+
+
+
+/* =========================================================
+   EXTENDED HMI VOCABULARY — all visible plant terminology
+========================================================= */
+const hmiExtra = {
+  "FACILITY OVERVIEW":"Anlagenübersicht","LIVE PLANT STATUS":"Live-Anlagenstatus","REACTOR ISLAND":"Reaktorinsel","COOLING AREA":"Kühlbereich","TURBINE HALL / GENERATION":"Turbinenhalle / Erzeugung","COOLING TOWERS":"Kühltürme","GENERATORS":"Generatoren","TRANSFORMERS":"Transformatoren","PIPING":"Rohrleitungen","REACTORS":"Reaktoren","TURBINES":"Turbinen","FEEDWATER":"Speisewasser","CONDENSATE":"Kondensat","STEAM FLOW":"Dampfdurchfluss","GRID LOAD":"Netzlast","GRID PARAMETERS":"Netzparameter","GRID STATE":"Netzzustand","GRID STATUS":"Netzstatus","TOTAL FACILITY":"Gesamtanlage","TOTAL FACILITY OUTPUT":"Gesamtanlagenleistung","TOTAL OUTPUT":"Gesamtleistung","PLANT OUTPUT":"Anlagenleistung","UNIT PERFORMANCE":"Blockleistung","UNIT 01 OUTPUT":"Leistung Block 01","UNIT 02 OUTPUT":"Leistung Block 02","UNIT 03 OUTPUT":"Leistung Block 03","UNIT 04 OUTPUT":"Leistung Block 04","CURRENT STATUS":"Aktueller Status","SITE STATUS":"Standortstatus","SYSTEM PARAMETERS":"Systemparameter","STEAM / WATER SYSTEM":"Dampf- / Wassersystem","STEAM SYSTEM":"Dampfsystem","COMMUNICATION AND DATA SYSTEMS":"Kommunikations- und Datensysteme","ELECTRICAL DISTRIBUTION":"Elektrische Verteilung","INSTRUMENTATION STATUS":"Mess- und Instrumentierungsstatus","ENVIRONMENTAL MONITORING":"Umweltüberwachung","LIVE MEASUREMENTS":"Live-Messwerte","LIVE ELECTRICAL DATA":"Live-Elektrodaten","LIVE ENVIRONMENT DATA":"Live-Umweltdaten","LIVE PROCESS TRENDS":"Live-Prozesstrends","OBJECT DETAILS":"Objektdetails","DIAGNOSTICS":"DIAGNOSE","Diagnostic information available":"Diagnoseinformationen verfügbar","Routine equipment status message":"Routine-Statusmeldung der Anlage","Routine monitoring update":"Routine-Überwachungsaktualisierung","Scheduled inspection record updated":"Geplanter Prüfdatensatz aktualisiert","HMI BUILD 04.18 | LIVE DATA | REFRESH 1s":"HMI BUILD 04.18 | LIVE-DATEN | AKTUALISIERUNG 1 s","OUTSIDE TEMP.":"AUSSENTEMPERATUR","HUMIDITY":"LUFTFEUCHTIGKEIT","WIND SPEED":"WINDGESCHWINDIGKEIT","WATER QUALITY":"WASSERQUALITÄT","PLANT AUXILIARY":"KRAFTWERKS-HILFSANLAGEN","AUXILIARY LOAD":"HILFSLAST","SYSTEM EVENT LOG":"SYSTEMEREIGNISPROTOKOLL","EVENT AND STATUS LIST":"EREIGNIS- UND STATUSLISTE","CENTRAL MONITORING / SYSTEM STATUS:":"ZENTRALÜBERWACHUNG / SYSTEMSTATUS:","Grid connection":"Netzanschluss","Load / activity":"Last / Aktivität","Temperature reference":"Temperaturreferenz","Time synchronization":"Zeitsynchronisation","Transformer group":"Transformatoreinheit","Engineering workstation":"Engineering-Arbeitsplatz","Operator terminals":"Bedienplätze","Control network":"Steuernetzwerk","Plant network":"Kraftwerksnetz","Remote monitoring":"Fernüberwachung","Perimeter monitoring":"Perimeterüberwachung","Export monitoring":"Exportüberwachung","Data acquisition":"Datenerfassung","Data archive":"Datenarchiv","Monitoring channels":"Überwachungskanäle","Emergency supply":"Notstromversorgung","Heat exchangers":"Wärmetauscher","Ventilation":"Lüftung","Fans":"Ventilatoren","Primary system":"Primärsystem","Secondary system":"Sekundärsystem","Protection system":"Schutzsystem","Water Treatment":"Wasseraufbereitung","Water treatment":"Wasseraufbereitung","Water monitoring":"Wasserüberwachung","Air monitoring":"Luftüberwachung","Air flow":"Luftstrom","Weather station":"Wetterstation","Historian":"Historian","Switchyard":"Schaltanlage","Electrical Grid":"Stromnetz","Main bus A":"Hauptsammelschiene A","Main bus B":"Hauptsammelschiene B","Auxiliary power":"Hilfsenergie","Availability":"Verfügbarkeit","Condensate system":"Kondensatsystem","Steam System":"Dampfsystem","Cooling system":"Kühlsystem","Cooling System":"Kühlsystem","Communication":"Kommunikation","Communications":"Kommunikation","Equipment":"Anlagentechnik","Environment":"Umwelt","Electrical":"Elektrik","Instrumentation":"Messtechnik","Monitoring":"Überwachung","Maintenance":"Wartung","Status":"Status","Condition":"Zustand","Output":"Leistung","Load":"Last","Temperature":"Temperatur","Cooling":"Kühlung","Generator":"Generator","NORMAL":"NORMAL","STABLE":"STABIL","MONITORING":"ÜBERWACHUNG","NOMINAL":"NOMINAL","READY":"BEREIT","AVAILABLE":"VERFÜGBAR","CONNECTED":"VERBUNDEN","GOOD":"GUT","ACTIVE":"AKTIV","ACKNOWLEDGED":"BESTÄTIGT","LOCKED":"GESPERRT","CLOSED":"GESCHLOSSEN","ONLINE":"ONLINE","INFORMATION":"INFORMATION","DESCRIPTION":"BESCHREIBUNG","STATE":"ZUSTAND","STATUS":"STATUS","TIME":"ZEIT","Last update":"Letzte Aktualisierung","1 SEC REFRESH":"1 SEK. AKTUALISIERUNG","LIVE VALUES":"LIVE-WERTE","LAST 60 MIN":"LETZTE 60 MIN","PROCESS AREA / ALL UNITS":"PROZESSBEREICH / ALLE BLÖCKE"
+};
+const hmiExtraRu={
+"FACILITY OVERVIEW":"ОБЗОР ОБЪЕКТА","LIVE PLANT STATUS":"ТЕКУЩЕЕ СОСТОЯНИЕ СТАНЦИИ","REACTOR ISLAND":"РЕАКТОРНЫЙ ОСТРОВ","COOLING AREA":"ЗОНА ОХЛАЖДЕНИЯ","TURBINE HALL / GENERATION":"ТУРБИННЫЙ ЗАЛ / ГЕНЕРАЦИЯ","COOLING TOWERS":"ГРАДИРНИ","GENERATORS":"ГЕНЕРАТОРЫ","TRANSFORMERS":"ТРАНСФОРМАТОРЫ","PIPING":"ТРУБОПРОВОДЫ","REACTORS":"РЕАКТОРЫ","TURBINES":"ТУРБИНЫ","FEEDWATER":"ПИТАТЕЛЬНАЯ ВОДА","CONDENSATE":"КОНДЕНСАТ","STEAM FLOW":"РАСХОД ПАРА","GRID LOAD":"НАГРУЗКА СЕТИ","GRID PARAMETERS":"ПАРАМЕТРЫ СЕТИ","GRID STATE":"СОСТОЯНИЕ СЕТИ","GRID STATUS":"СТАТУС СЕТИ","TOTAL FACILITY":"ВСЯ СТАНЦИЯ","TOTAL FACILITY OUTPUT":"МОЩНОСТЬ СТАНЦИИ","TOTAL OUTPUT":"СУММАРНАЯ МОЩНОСТЬ","PLANT OUTPUT":"МОЩНОСТЬ СТАНЦИИ","UNIT PERFORMANCE":"РАБОТА БЛОКОВ","CURRENT STATUS":"ТЕКУЩЕЕ СОСТОЯНИЕ","SITE STATUS":"СОСТОЯНИЕ ПЛОЩАДКИ","SYSTEM PARAMETERS":"ПАРАМЕТРЫ СИСТЕМЫ","STEAM / WATER SYSTEM":"ПАРОВАЯ / ВОДЯНАЯ СИСТЕМА","COMMUNICATION AND DATA SYSTEMS":"СИСТЕМЫ СВЯЗИ И ДАННЫХ","ELECTRICAL DISTRIBUTION":"РАСПРЕДЕЛЕНИЕ ЭЛЕКТРОЭНЕРГИИ","INSTRUMENTATION STATUS":"СОСТОЯНИЕ КИП","ENVIRONMENTAL MONITORING":"ЭКОЛОГИЧЕСКИЙ КОНТРОЛЬ","LIVE MEASUREMENTS":"ТЕКУЩИЕ ИЗМЕРЕНИЯ","LIVE ELECTRICAL DATA":"ТЕКУЩИЕ ЭЛЕКТРИЧЕСКИЕ ДАННЫЕ","LIVE ENVIRONMENT DATA":"ТЕКУЩИЕ ДАННЫЕ ОБ ОКРУЖАЮЩЕЙ СРЕДЕ","LIVE PROCESS TRENDS":"ТЕКУЩИЕ ТРЕНДЫ ПРОЦЕССА","OBJECT DETAILS":"ДЕТАЛИ ОБЪЕКТА","DIAGNOSTICS":"ДИАГНОСТИКА","Diagnostic information available":"Доступна диагностическая информация","Routine equipment status message":"Штатное сообщение о состоянии оборудования","Routine monitoring update":"Штатное обновление мониторинга","Scheduled inspection record updated":"Обновлена запись плановой проверки","OUTSIDE TEMP.":"ТЕМПЕРАТУРА СНАРУЖИ","HUMIDITY":"ВЛАЖНОСТЬ","WIND SPEED":"СКОРОСТЬ ВЕТРА","WATER QUALITY":"КАЧЕСТВО ВОДЫ","PLANT AUXILIARY":"ВСПОМОГАТЕЛЬНЫЕ СИСТЕМЫ СТАНЦИИ","AUXILIARY LOAD":"ВСПОМОГАТЕЛЬНАЯ НАГРУЗКА","Load / activity":"Нагрузка / активность","Temperature reference":"Температурная уставка","Time synchronization":"Синхронизация времени","Transformer group":"Группа трансформаторов","Engineering workstation":"Инженерная станция","Operator terminals":"Пульты оператора","Control network":"Сеть управления","Plant network":"Сеть станции","Remote monitoring":"Удалённый мониторинг","Perimeter monitoring":"Контроль периметра","Export monitoring":"Контроль выдачи","Data acquisition":"Сбор данных","Data archive":"Архив данных","Monitoring channels":"Каналы мониторинга","Emergency supply":"Аварийное электроснабжение","Heat exchangers":"Теплообменники","Ventilation":"Вентиляция","Fans":"Вентиляторы","Primary system":"Первичная система","Secondary system":"Вторичная система","Protection system":"Система защиты","Water Treatment":"Водоподготовка","Water treatment":"Водоподготовка","Water monitoring":"Контроль воды","Air monitoring":"Контроль воздуха","Air flow":"Расход воздуха","Weather station":"Метеостанция","Historian":"Архиватор","Switchyard":"Открытое распределительное устройство","Electrical Grid":"Электрическая сеть","Main bus A":"Главная шина A","Main bus B":"Главная шина B","Auxiliary power":"Вспомогательное питание","Availability":"Готовность","Condensate system":"Конденсатная система","Steam System":"Паровая система","Cooling system":"Система охлаждения","Cooling System":"Система охлаждения","Communication":"Связь","Communications":"Связь","Equipment":"Оборудование","Environment":"Окружающая среда","Electrical":"Электрика","Instrumentation":"Контрольно-измерительные приборы","Monitoring":"Мониторинг","Maintenance":"Техническое обслуживание","Status":"Состояние","Condition":"Состояние","Output":"Мощность","Load":"Нагрузка","Temperature":"Температура","Cooling":"Охлаждение","Generator":"Генератор","NORMAL":"НОРМА","STABLE":"СТАБИЛЬНО","MONITORING":"КОНТРОЛЬ","NOMINAL":"НОМИНАЛЬНО","READY":"ГОТОВ","AVAILABLE":"ДОСТУПНО","CONNECTED":"ПОДКЛЮЧЕНО","GOOD":"НОРМА","ACTIVE":"АКТИВНО","ACKNOWLEDGED":"ПОДТВЕРЖДЕНО","LOCKED":"ЗАБЛОКИРОВАНО","CLOSED":"ЗАКРЫТО","ONLINE":"ОНЛАЙН","INFORMATION":"ИНФОРМАЦИЯ","DESCRIPTION":"ОПИСАНИЕ","STATE":"СОСТОЯНИЕ","STATUS":"СТАТУС","TIME":"ВРЕМЯ","Last update":"Последнее обновление","1 SEC REFRESH":"ОБНОВЛЕНИЕ 1 СЕК","LIVE VALUES":"ТЕКУЩИЕ ЗНАЧЕНИЯ","LAST 60 MIN":"ПОСЛЕДНИЕ 60 МИН","PROCESS AREA / ALL UNITS":"ТЕХНОЛОГИЧЕСКАЯ ЗОНА / ВСЕ БЛОКИ"
+};
+const hmiExtraUk={
+"FACILITY OVERVIEW":"ОГЛЯД ОБ'ЄКТА","LIVE PLANT STATUS":"ПОТОЧНИЙ СТАН СТАНЦІЇ","REACTOR ISLAND":"РЕАКТОРНИЙ ОСТРІВ","COOLING AREA":"ЗОНА ОХОЛОДЖЕННЯ","TURBINE HALL / GENERATION":"ТУРБІННИЙ ЗАЛ / ГЕНЕРАЦІЯ","COOLING TOWERS":"ГРАДИРНІ","GENERATORS":"ГЕНЕРАТОРИ","TRANSFORMERS":"ТРАНСФОРМАТОРИ","PIPING":"ТРУБОПРОВОДИ","REACTORS":"РЕАКТОРИ","TURBINES":"ТУРБІНИ","FEEDWATER":"ЖИВИЛЬНА ВОДА","CONDENSATE":"КОНДЕНСАТ","STEAM FLOW":"ВИТРАТА ПАРИ","GRID LOAD":"НАВАНТАЖЕННЯ МЕРЕЖІ","GRID PARAMETERS":"ПАРАМЕТРИ МЕРЕЖІ","GRID STATE":"СТАН МЕРЕЖІ","GRID STATUS":"СТАТУС МЕРЕЖІ","TOTAL FACILITY":"ВСЯ СТАНЦІЯ","TOTAL FACILITY OUTPUT":"ПОТУЖНІСТЬ СТАНЦІЇ","TOTAL OUTPUT":"СУМАРНА ПОТУЖНІСТЬ","PLANT OUTPUT":"ПОТУЖНІСТЬ СТАНЦІЇ","UNIT PERFORMANCE":"РОБОТА БЛОКІВ","CURRENT STATUS":"ПОТОЧНИЙ СТАН","SITE STATUS":"СТАН МАЙДАНЧИКА","SYSTEM PARAMETERS":"ПАРАМЕТРИ СИСТЕМИ","STEAM / WATER SYSTEM":"ПАРОВА / ВОДЯНА СИСТЕМА","COMMUNICATION AND DATA SYSTEMS":"СИСТЕМИ ЗВ'ЯЗКУ ТА ДАНИХ","ELECTRICAL DISTRIBUTION":"РОЗПОДІЛ ЕЛЕКТРОЕНЕРГІЇ","INSTRUMENTATION STATUS":"СТАН КВП","ENVIRONMENTAL MONITORING":"ЕКОЛОГІЧНИЙ КОНТРОЛЬ","LIVE MEASUREMENTS":"ПОТОЧНІ ВИМІРЮВАННЯ","LIVE ELECTRICAL DATA":"ПОТОЧНІ ЕЛЕКТРИЧНІ ДАНІ","LIVE ENVIRONMENT DATA":"ПОТОЧНІ ДАНІ ДОВКІЛЛЯ","LIVE PROCESS TRENDS":"ПОТОЧНІ ТРЕНДИ ПРОЦЕСУ","OBJECT DETAILS":"ДЕТАЛІ ОБ'ЄКТА","DIAGNOSTICS":"ДІАГНОСТИКА","Diagnostic information available":"Доступна діагностична інформація","Routine equipment status message":"Штатне повідомлення про стан обладнання","Routine monitoring update":"Штатне оновлення моніторингу","Scheduled inspection record updated":"Оновлено запис планової перевірки","OUTSIDE TEMP.":"ЗОВНІШНЯ ТЕМПЕРАТУРА","HUMIDITY":"ВОЛОГІСТЬ","WIND SPEED":"ШВИДКІСТЬ ВІТРУ","WATER QUALITY":"ЯКІСТЬ ВОДИ","PLANT AUXILIARY":"ДОПОМІЖНІ СИСТЕМИ СТАНЦІЇ","AUXILIARY LOAD":"ДОПОМІЖНЕ НАВАНТАЖЕННЯ","Load / activity":"Навантаження / активність","Temperature reference":"Температурний орієнтир","Time synchronization":"Синхронізація часу","Transformer group":"Група трансформаторів","Engineering workstation":"Інженерна станція","Operator terminals":"Пульти оператора","Control network":"Мережа керування","Plant network":"Мережа станції","Remote monitoring":"Віддалений моніторинг","Perimeter monitoring":"Контроль периметра","Export monitoring":"Контроль видачі","Data acquisition":"Збір даних","Data archive":"Архів даних","Monitoring channels":"Канали моніторингу","Emergency supply":"Аварійне електропостачання","Heat exchangers":"Теплообмінники","Ventilation":"Вентиляція","Fans":"Вентилятори","Primary system":"Первинна система","Secondary system":"Вторинна система","Protection system":"Система захисту","Water Treatment":"Водопідготовка","Water treatment":"Водопідготовка","Water monitoring":"Контроль води","Air monitoring":"Контроль повітря","Air flow":"Витрата повітря","Weather station":"Метеостанція","Historian":"Архіватор","Switchyard":"Відкрите розподільче устаткування","Electrical Grid":"Електрична мережа","Main bus A":"Головна шина A","Main bus B":"Головна шина B","Auxiliary power":"Допоміжне живлення","Availability":"Готовність","Condensate system":"Конденсатна система","Steam System":"Парова система","Cooling system":"Система охолодження","Cooling System":"Система охолодження","Communication":"Зв'язок","Communications":"Зв'язок","Equipment":"Обладнання","Environment":"Довкілля","Electrical":"Електрика","Instrumentation":"Контрольно-вимірювальні прилади","Monitoring":"Моніторинг","Maintenance":"Технічне обслуговування","Status":"Стан","Condition":"Стан","Output":"Потужність","Load":"Навантаження","Temperature":"Температура","Cooling":"Охолодження","Generator":"Генератор","NORMAL":"НОРМА","STABLE":"СТАБІЛЬНО","MONITORING":"КОНТРОЛЬ","NOMINAL":"НОМІНАЛЬНО","READY":"ГОТОВО","AVAILABLE":"ДОСТУПНО","CONNECTED":"ПІДКЛЮЧЕНО","GOOD":"НОРМА","ACTIVE":"АКТИВНО","ACKNOWLEDGED":"ПІДТВЕРДЖЕНО","LOCKED":"ЗАБЛОКОВАНО","CLOSED":"ЗАКРИТО","ONLINE":"ОНЛАЙН","INFORMATION":"ІНФОРМАЦІЯ","DESCRIPTION":"ОПИС","STATE":"СТАН","STATUS":"СТАТУС","TIME":"ЧАС","Last update":"Останнє оновлення","1 SEC REFRESH":"ОНОВЛЕННЯ 1 СЕК","LIVE VALUES":"ПОТОЧНІ ЗНАЧЕННЯ","LAST 60 MIN":"ОСТАННІ 60 ХВ","PROCESS AREA / ALL UNITS":"ТЕХНОЛОГІЧНА ЗОНА / УСІ БЛОКИ"
+};
+const hmiExtraPl={
+"FACILITY OVERVIEW":"PRZEGLĄD OBIEKTU","LIVE PLANT STATUS":"BIEŻĄCY STAN ELEKTROWNI","REACTOR ISLAND":"WYSPA REAKTOROWA","COOLING AREA":"OBSZAR CHŁODZENIA","TURBINE HALL / GENERATION":"HALA TURBIN / WYTWARZANIE","COOLING TOWERS":"CHŁODNIE KOMINOWE","GENERATORS":"GENERATORY","TRANSFORMERS":"TRANSFORMATORY","PIPING":"RUROCIĄGI","REACTORS":"REAKTORY","TURBINES":"TURBINY","FEEDWATER":"WODA ZASILAJĄCA","CONDENSATE":"KONDENSAT","STEAM FLOW":"PRZEPŁYW PARY","GRID LOAD":"OBCIĄŻENIE SIECI","GRID PARAMETERS":"PARAMETRY SIECI","GRID STATE":"STAN SIECI","GRID STATUS":"STATUS SIECI","TOTAL FACILITY":"CAŁA ELEKTROWNIA","TOTAL FACILITY OUTPUT":"MOC CAŁEJ ELEKTROWNI","TOTAL OUTPUT":"MOC CAŁKOWITA","PLANT OUTPUT":"MOC ELEKTROWNI","UNIT PERFORMANCE":"PRACA BLOKÓW","CURRENT STATUS":"BIEŻĄCY STAN","SITE STATUS":"STAN OBIEKTU","SYSTEM PARAMETERS":"PARAMETRY SYSTEMU","STEAM / WATER SYSTEM":"SYSTEM PARY / WODY","COMMUNICATION AND DATA SYSTEMS":"SYSTEMY ŁĄCZNOŚCI I DANYCH","ELECTRICAL DISTRIBUTION":"ROZDZIAŁ ENERGII ELEKTRYCZNEJ","INSTRUMENTATION STATUS":"STAN APARATURY KONTROLNO-POMIAROWEJ","ENVIRONMENTAL MONITORING":"MONITORING ŚRODOWISKA","LIVE MEASUREMENTS":"BIEŻĄCE POMIARY","LIVE ELECTRICAL DATA":"BIEŻĄCE DANE ELEKTRYCZNE","LIVE ENVIRONMENT DATA":"BIEŻĄCE DANE ŚRODOWISKOWE","LIVE PROCESS TRENDS":"BIEŻĄCE TRENDY PROCESU","OBJECT DETAILS":"SZCZEGÓŁY OBIEKTU","DIAGNOSTICS":"DIAGNOSTYKA","Diagnostic information available":"Dostępne informacje diagnostyczne","Routine equipment status message":"Rutynowy komunikat stanu urządzenia","Routine monitoring update":"Rutynowa aktualizacja monitoringu","Scheduled inspection record updated":"Zaktualizowano zapis planowej kontroli","OUTSIDE TEMP.":"TEMPERATURA ZEWNĘTRZNA","HUMIDITY":"WILGOTNOŚĆ","WIND SPEED":"PRĘDKOŚĆ WIATRU","WATER QUALITY":"JAKOŚĆ WODY","PLANT AUXILIARY":"UKŁADY POMOCNICZE ELEKTROWNI","AUXILIARY LOAD":"OBCIĄŻENIE POMOCNICZE","Load / activity":"Obciążenie / aktywność","Temperature reference":"Temperatura odniesienia","Time synchronization":"Synchronizacja czasu","Transformer group":"Grupa transformatorowa","Engineering workstation":"Stanowisko inżynierskie","Operator terminals":"Stanowiska operatorów","Control network":"Sieć sterowania","Plant network":"Sieć elektrowni","Remote monitoring":"Monitoring zdalny","Perimeter monitoring":"Monitoring obwodowy","Export monitoring":"Monitoring wyprowadzenia mocy","Data acquisition":"Pozyskiwanie danych","Data archive":"Archiwum danych","Monitoring channels":"Kanały monitoringu","Emergency supply":"Zasilanie awaryjne","Heat exchangers":"Wymienniki ciepła","Ventilation":"Wentylacja","Fans":"Wentylatory","Primary system":"Układ pierwotny","Secondary system":"Układ wtórny","Protection system":"Układ zabezpieczeń","Water Treatment":"Uzdatnianie wody","Water treatment":"Uzdatnianie wody","Water monitoring":"Monitoring wody","Air monitoring":"Monitoring powietrza","Air flow":"Przepływ powietrza","Weather station":"Stacja pogodowa","Historian":"Archiwum historyczne","Switchyard":"Rozdzielnia","Electrical Grid":"Sieć elektroenergetyczna","Main bus A":"Szyna główna A","Main bus B":"Szyna główna B","Auxiliary power":"Zasilanie pomocnicze","Availability":"Dyspozycyjność","Condensate system":"Układ kondensatu","Steam System":"Układ parowy","Cooling system":"Układ chłodzenia","Cooling System":"Układ chłodzenia","Communication":"Łączność","Communications":"Łączność","Equipment":"Urządzenia","Environment":"Środowisko","Electrical":"Elektryka","Instrumentation":"Aparatura pomiarowa","Monitoring":"Monitoring","Maintenance":"Konserwacja","Status":"Stan","Condition":"Stan","Output":"Moc","Load":"Obciążenie","Temperature":"Temperatura","Cooling":"Chłodzenie","Generator":"Generator","NORMAL":"NORMALNY","STABLE":"STABILNY","MONITORING":"MONITORING","NOMINAL":"NOMINALNY","READY":"GOTOWY","AVAILABLE":"DOSTĘPNY","CONNECTED":"POŁĄCZONY","GOOD":"DOBRY","ACTIVE":"AKTYWNY","ACKNOWLEDGED":"POTWIERDZONY","LOCKED":"ZABLOKOWANY","CLOSED":"ZAMKNIĘTY","ONLINE":"ONLINE","INFORMATION":"INFORMACJA","DESCRIPTION":"OPIS","STATE":"STAN","STATUS":"STATUS","TIME":"CZAS","Last update":"Ostatnia aktualizacja","1 SEC REFRESH":"ODŚWIEŻANIE 1 SEK","LIVE VALUES":"WARTOŚCI NA ŻYWO","LAST 60 MIN":"OSTATNIE 60 MIN","PROCESS AREA / ALL UNITS":"OBSZAR PROCESU / WSZYSTKIE BLOKI"
+};
+
+/* =========================================================
+   COMPLETE LANGUAGE PACK — all visible HMI labels and status text
+   ========================================================= */
+const complete_de = {"FACILITY OVERVIEW":"KRAFTWERKSÜBERSICHT","LIVE PLANT STATUS":"LIVE-ANLAGENSTATUS","REACTOR ISLAND":"REAKTORINSEL","COOLING AREA":"KÜHLBEREICH","TURBINE HALL / GENERATION":"TURBINENHALLE / ERZEUGUNG","LIVE PROCESS TRENDS":"LIVE-PROZESSTRENDS","TOTAL OUTPUT":"GESAMTLEISTUNG","TOTAL FACILITY":"GESAMTANLAGE","TOTAL FACILITY OUTPUT":"GESAMTANLAGENLEISTUNG","PLANT OUTPUT":"ANLAGENLEISTUNG","UNIT PERFORMANCE":"BLOCKLEISTUNG","UNIT 01 OUTPUT":"LEISTUNG BLOCK 01","UNIT 02 OUTPUT":"LEISTUNG BLOCK 02","UNIT 03 OUTPUT":"LEISTUNG BLOCK 03","UNIT 04 OUTPUT":"LEISTUNG BLOCK 04","COOLING TOWERS":"KÜHLTÜRME","GENERATORS":"GENERATOREN","TRANSFORMERS":"TRANSFORMATOREN","PIPING":"ROHRLEITUNGEN","REACTORS":"REAKTOREN","TURBINES":"TURBINEN","STEAM FLOW":"DAMPFDURCHFLUSS","FEEDWATER":"SPEISEWASSER","CONDENSATE":"KONDENSAT","GRID LOAD":"NETZLAST","GRID PARAMETERS":"NETZPARAMETER","GRID STATE":"NETZZUSTAND","GRID STATUS":"NETZSTATUS","CURRENT STATUS":"AKTUELLER STATUS","SITE STATUS":"STANDORTSTATUS","SYSTEM PARAMETERS":"SYSTEMPARAMETER","STEAM / WATER SYSTEM":"DAMPF- / WASSERSYSTEM","COMMUNICATION AND DATA SYSTEMS":"KOMMUNIKATIONS- UND DATENSYSTEME","ELECTRICAL DISTRIBUTION":"ELEKTRISCHE VERTEILUNG","INSTRUMENTATION STATUS":"STATUS DER MESSTECHNIK","ENVIRONMENTAL MONITORING":"UMWELTÜBERWACHUNG","LIVE MEASUREMENTS":"LIVE-MESSWERTE","LIVE ELECTRICAL DATA":"LIVE-ELEKTRODATEN","LIVE ENVIRONMENT DATA":"LIVE-UMWELTDATEN","OBJECT DETAILS":"OBJEKTDETAILS","DIAGNOSTICS":"DIAGNOSE","EVENT AND STATUS LIST":"EREIGNIS- UND STATUSLISTE","SYSTEM EVENT LOG":"SYSTEMEREIGNISPROTOKOLL","PLANT NAVIGATION":"KRAFTWERKSNAVIGATION","EQUIPMENT MONITORING":"ANLAGENÜBERWACHUNG","CENTRAL MONITORING SYSTEM / ONLINE":"ZENTRALES ÜBERWACHUNGSSYSTEM / ONLINE","POWER GENERATION FACILITY — CENTRAL MONITORING":"ENERGIEERZEUGUNGSANLAGE — ZENTRALE ÜBERWACHUNG","LIVE VALUES":"LIVE-WERTE","LAST 60 MIN":"LETZTE 60 MIN","1 SEC REFRESH":"AKTUALISIERUNG 1 S","PROCESS AREA / ALL UNITS":"PROZESSBEREICH / ALLE BLÖCKE","REACTOR SYSTEMS":"REAKTORSYSTEME","TURBINE HALL":"TURBINENHALLE","STEAM / WATER SYSTEMS":"DAMPF / WASSER-SYSTEME","AUXILIARY SYSTEMS":"HILFSSYSTEME","PROCESS TRENDS":"PROZESSTRENDS","EVENT & STATUS LIST":"EREIGNIS- & STATUSLISTE","GRID / SWITCHYARD":"NETZ / SCHALTANLAGE","INSTRUMENTATION":"MESSTECHNIK","ENVIRONMENT":"UMWELT","COMMUNICATIONS":"KOMMUNIKATION","ONLINE":"ONLINE","NORMAL":"NORMAL","READY":"BEREIT","AVAILABLE":"VERFÜGBAR","CONNECTED":"VERBUNDEN","GOOD":"GUT","STABLE":"STABIL","MONITORED":"ÜBERWACHT","LOCKED":"GESPERRT","CLOSED":"GESCHLOSSEN","ACTIVE":"AKTIV","ACKNOWLEDGED":"BESTÄTIGT","INFORMATION":"INFORMATION","SYSTEM":"SYSTEM","NETWORK":"NETZWERK","EVENTS":"EREIGNISSE","DESCRIPTION":"BESCHREIBUNG","STATE":"ZUSTAND","STATUS":"STATUS","TIME":"ZEIT","Condition":"Zustand","Output":"Leistung","Load":"Last","Temperature":"Temperatur","Water temp.":"Wassertemperatur","Air flow":"Luftstrom","Fans":"Ventilatoren","Generator":"Generator","Monitoring":"Überwachung","Maintenance":"Wartung","Communication":"Kommunikation","Grid connection":"Netzanschluss","Primary system":"Primärsystem","Secondary system":"Sekundärsystem","Cooling system":"Kühlsystem","Steam system":"Dampfsystem","Steam System":"Dampfsystem","Condensate system":"Kondensatsystem","Feedwater system":"Speisewassersystem","Water treatment":"Wasseraufbereitung","Water Treatment":"Wasseraufbereitung","Water monitoring":"Wasserüberwachung","Air monitoring":"Luftüberwachung","Weather station":"Wetterstation","Site monitoring":"Standortüberwachung","Perimeter monitoring":"Perimeterüberwachung","Data acquisition":"Datenerfassung","Data archive":"Datenarchiv","Control network":"Steuernetzwerk","Plant network":"Kraftwerksnetz","Remote monitoring":"Fernüberwachung","Operator terminals":"Bedienplätze","Engineering workstation":"Engineering-Arbeitsplatz","Time synchronization":"Zeitsynchronisation","Historian":"Historian","Switchyard":"Schaltanlage","Main bus A":"Hauptsammelschiene A","Main bus B":"Hauptsammelschiene B","Transformer group":"Transformatoreinheit","Auxiliary power":"Hilfsenergie","Emergency supply":"Notstromversorgung","Protection system":"Schutzsystem","Heat exchangers":"Wärmetauscher","Ventilation":"Lüftung","Availability":"Verfügbarkeit","Data quality":"Datenqualität","Diagnostic":"Diagnose","Diagnostic channel":"Diagnosekanal","Load / activity":"Last / Aktivität","Temperature reference":"Temperaturreferenz","Last update":"Letzte Aktualisierung","OUTSIDE TEMP.":"AUSSENTEMPERATUR","HUMIDITY":"LUFTFEUCHTIGKEIT","WIND SPEED":"WINDGESCHWINDIGKEIT","WATER QUALITY":"WASSERQUALITÄT","PLANT AUXILIARY":"KRAFTWERKS-HILFSANLAGEN","AUXILIARY LOAD":"HILFSLAST","CENTRAL MONITORING / SYSTEM STATUS:":"ZENTRALÜBERWACHUNG / SYSTEMSTATUS:","HMI BUILD 04.18":"HMI BUILD 04.18","LIVE DATA":"LIVE-DATEN","REFRESH 1s":"AKTUALISIERUNG 1 s","Scheduled inspection record updated":"Geplanter Prüfdatensatz aktualisiert","Diagnostic information available":"Diagnoseinformationen verfügbar","Routine equipment status message":"Routine-Statusmeldung der Anlage","Routine monitoring update":"Routine-Überwachungsaktualisierung","System status confirmed normal":"Systemstatus normal bestätigt","Monitoring cycle completed.":"Überwachungszyklus abgeschlossen.","Instrumentation data synchronized.":"Messdaten synchronisiert.","Grid status information updated.":"Netzstatusinformationen aktualisiert.","Cooling system data received.":"Kühlsystemdaten empfangen.","Unit monitoring values refreshed.":"Blocküberwachungswerte aktualisiert.","Environmental monitoring updated.":"Umweltüberwachung aktualisiert.","Equipment diagnostic cycle completed.":"Anlagendiagnose abgeschlossen.","Plant historian synchronized.":"Kraftwerksarchiv synchronisiert.","Communication channels verified.":"Kommunikationskanäle geprüft.","PRIMARY COOLING PUMP A":"PRIMÄRKÜHLPUMPE A","PRIMARY COOLING PUMP B":"PRIMÄRKÜHLPUMPE B","SECONDARY PUMP A":"SEKUNDÄRPUMPE A","SECONDARY PUMP B":"SEKUNDÄRPUMPE B","FEEDWATER SYSTEM A":"SPEISEWASSERSYSTEM A","FEEDWATER SYSTEM B":"SPEISEWASSERSYSTEM B","CONDENSER A":"KONDENSATOR A","CONDENSER B":"KONDENSATOR B","HEAT EXCHANGER 01":"WÄRMETAUSCHER 01","HEAT EXCHANGER 02":"WÄRMETAUSCHER 02","VENTILATION SYSTEM":"LÜFTUNGSSYSTEM","WATER TREATMENT":"WASSERAUFBEREITUNG","FIRE PROTECTION":"BRANDSCHUTZ","COMPRESSED AIR":"DRUCKLUFT","SERVICE WATER":"BETRIEBSWASSER","EMERGENCY POWER":"NOTSTROMVERSORGUNG","BUILDING MONITORING":"GEBÄUDEÜBERWACHUNG","LIGHTING SYSTEM":"BELEUCHTUNGSSYSTEM","DRAINAGE SYSTEM":"ENTWÄSSERUNGSSYSTEM","INSTRUMENT AIR":"INSTRUMENTENLUFT","MAINTENANCE SYSTEM":"WARTUNGSSYSTEM","PRESSURE SENSORS":"DRUCKSENSOREN","TEMPERATURE SENSORS":"TEMPERATURSENSOREN","FLOW SENSORS":"DURCHFLUSSSENSOREN","LEVEL SENSORS":"FÜLLSTANDSSENSOREN","VIBRATION MONITORS":"SCHWINGUNGSÜBERWACHUNG","ENVIRONMENTAL":"UMWELT","PROCESS ANALYZERS":"PROZESSANALYSATOREN","SAFETY MONITORS":"SICHERHEITSÜBERWACHUNG","CONTROL NETWORK":"STEUERNETZWERK","DATA ACQUISITION":"DATENERFASSUNG","TIME SYNCHRONIZATION":"ZEITSYNCHRONISATION","ARCHIVE SYSTEM":"ARCHIVSYSTEM","PLANT NETWORK":"KRAFTWERKSNETZ","HISTORIAN":"HISTORIAN","DATA ARCHIVE":"DATENARCHIV","OPERATOR TERMINALS":"BEDIENPLÄTZE","ENGINEERING WORKSTATION":"ENGINEERING-ARBEITSPLATZ","REMOTE MONITORING":"FERNÜBERWACHUNG"};
+const complete_ru = {"FACILITY OVERVIEW":"ОБЗОР ОБЪЕКТА","LIVE PLANT STATUS":"ТЕКУЩЕЕ СОСТОЯНИЕ СТАНЦИИ","REACTOR ISLAND":"РЕАКТОРНЫЙ ОСТРОВ","COOLING AREA":"ЗОНА ОХЛАЖДЕНИЯ","TURBINE HALL / GENERATION":"ТУРБИННЫЙ ЗАЛ / ГЕНЕРАЦИЯ","LIVE PROCESS TRENDS":"ТЕКУЩИЕ ТРЕНДЫ ПРОЦЕССА","TOTAL OUTPUT":"СУММАРНАЯ МОЩНОСТЬ","TOTAL FACILITY":"ВСЯ СТАНЦИЯ","TOTAL FACILITY OUTPUT":"МОЩНОСТЬ СТАНЦИИ","PLANT OUTPUT":"МОЩНОСТЬ СТАНЦИИ","UNIT PERFORMANCE":"РАБОТА БЛОКОВ","UNIT 01 OUTPUT":"МОЩНОСТЬ БЛОКА 01","UNIT 02 OUTPUT":"МОЩНОСТЬ БЛОКА 02","UNIT 03 OUTPUT":"МОЩНОСТЬ БЛОКА 03","UNIT 04 OUTPUT":"МОЩНОСТЬ БЛОКА 04","COOLING TOWERS":"ГРАДИРНИ","GENERATORS":"ГЕНЕРАТОРЫ","TRANSFORMERS":"ТРАНСФОРМАТОРЫ","PIPING":"ТРУБОПРОВОДЫ","REACTORS":"РЕАКТОРЫ","TURBINES":"ТУРБИНЫ","STEAM FLOW":"РАСХОД ПАРА","FEEDWATER":"ПИТАТЕЛЬНАЯ ВОДА","CONDENSATE":"КОНДЕНСАТ","GRID LOAD":"НАГРУЗКА СЕТИ","GRID PARAMETERS":"ПАРАМЕТРЫ СЕТИ","GRID STATE":"СОСТОЯНИЕ СЕТИ","GRID STATUS":"СТАТУС СЕТИ","CURRENT STATUS":"ТЕКУЩЕЕ СОСТОЯНИЕ","SITE STATUS":"СОСТОЯНИЕ ПЛОЩАДКИ","SYSTEM PARAMETERS":"ПАРАМЕТРЫ СИСТЕМЫ","STEAM / WATER SYSTEM":"ПАРОВАЯ / ВОДЯНАЯ СИСТЕМА","COMMUNICATION AND DATA SYSTEMS":"СИСТЕМЫ СВЯЗИ И ДАННЫХ","ELECTRICAL DISTRIBUTION":"РАСПРЕДЕЛЕНИЕ ЭЛЕКТРОЭНЕРГИИ","INSTRUMENTATION STATUS":"СОСТОЯНИЕ КИП","ENVIRONMENTAL MONITORING":"ЭКОЛОГИЧЕСКИЙ КОНТРОЛЬ","LIVE MEASUREMENTS":"ТЕКУЩИЕ ИЗМЕРЕНИЯ","LIVE ELECTRICAL DATA":"ТЕКУЩИЕ ЭЛЕКТРИЧЕСКИЕ ДАННЫЕ","LIVE ENVIRONMENT DATA":"ТЕКУЩИЕ ДАННЫЕ ОБ ОКРУЖАЮЩЕЙ СРЕДЕ","OBJECT DETAILS":"ДЕТАЛИ ОБЪЕКТА","DIAGNOSTICS":"ДИАГНОСТИКА","EVENT AND STATUS LIST":"СПИСОК СОБЫТИЙ И СОСТОЯНИЙ","SYSTEM EVENT LOG":"ЖУРНАЛ СИСТЕМНЫХ СОБЫТИЙ","PLANT NAVIGATION":"НАВИГАЦИЯ СТАНЦИИ","EQUIPMENT MONITORING":"КОНТРОЛЬ ОБОРУДОВАНИЯ","CENTRAL MONITORING SYSTEM / ONLINE":"ЦЕНТРАЛЬНАЯ СИСТЕМА КОНТРОЛЯ / ОНЛАЙН","POWER GENERATION FACILITY — CENTRAL MONITORING":"ЭНЕРГЕТИЧЕСКАЯ УСТАНОВКА — ЦЕНТРАЛЬНЫЙ КОНТРОЛЬ","LIVE VALUES":"ТЕКУЩИЕ ЗНАЧЕНИЯ","LAST 60 MIN":"ПОСЛЕДНИЕ 60 МИН","1 SEC REFRESH":"ОБНОВЛЕНИЕ 1 СЕК","PROCESS AREA / ALL UNITS":"ТЕХНОЛОГИЧЕСКАЯ ЗОНА / ВСЕ БЛОКИ","REACTOR SYSTEMS":"РЕАКТОРНЫЕ СИСТЕМЫ","TURBINE HALL":"ТУРБИННЫЙ ЗАЛ","STEAM / WATER SYSTEMS":"ПАР / ВОДЯНЫЕ СИСТЕМЫ","AUXILIARY SYSTEMS":"ВСПОМОГАТЕЛЬНЫЕ СИСТЕМЫ","PROCESS TRENDS":"ТРЕНДЫ ПРОЦЕССОВ","EVENT & STATUS LIST":"СОБЫТИЯ И СОСТОЯНИЯ","GRID / SWITCHYARD":"СЕТЬ / ОРУ","INSTRUMENTATION":"КОНТРОЛЬНО-ИЗМЕРИТЕЛЬНЫЕ ПРИБОРЫ","ENVIRONMENT":"ОКРУЖАЮЩАЯ СРЕДА","COMMUNICATIONS":"СВЯЗЬ","ONLINE":"ОНЛАЙН","NORMAL":"НОРМА","READY":"ГОТОВ","AVAILABLE":"ДОСТУПНО","CONNECTED":"ПОДКЛЮЧЕНО","GOOD":"НОРМА","STABLE":"СТАБИЛЬНО","MONITORED":"ПОД КОНТРОЛЕМ","LOCKED":"ЗАБЛОКИРОВАНО","CLOSED":"ЗАКРЫТО","ACTIVE":"АКТИВНО","ACKNOWLEDGED":"ПОДТВЕРЖДЕНО","INFORMATION":"ИНФОРМАЦИЯ","Status":"Состояние","Condition":"Состояние","Output":"Мощность","Load":"Нагрузка","Temperature":"Температура","Cooling":"Охлаждение","Generator":"Генератор","Monitoring":"Мониторинг","Maintenance":"Техническое обслуживание","Communication":"Связь","Communications":"Связь","Last update":"Последнее обновление","Equipment":"Оборудование","Environment":"Окружающая среда","Electrical":"Электрика","Systems":"Системы","Plant navigation":"Навигация станции","Language / Sprache":"Язык / Настройки","Settings":"Настройки","Select the HMI language. The selected language is used throughout the interface.":"Выберите язык HMI. Выбранный язык используется во всём интерфейсе."};
+const complete_en = {"FACILITY OVERVIEW":"PLANT OVERVIEW","LIVE PLANT STATUS":"LIVE PLANT STATUS","REACTOR ISLAND":"REACTOR ISLAND","COOLING AREA":"COOLING AREA","TURBINE HALL / GENERATION":"TURBINE HALL / GENERATION","LIVE PROCESS TRENDS":"LIVE PROCESS TRENDS","TOTAL OUTPUT":"TOTAL OUTPUT","TOTAL FACILITY":"TOTAL FACILITY","TOTAL FACILITY OUTPUT":"TOTAL FACILITY OUTPUT","PLANT OUTPUT":"PLANT OUTPUT","UNIT PERFORMANCE":"UNIT PERFORMANCE","UNIT 01 OUTPUT":"UNIT 01 OUTPUT","UNIT 02 OUTPUT":"UNIT 02 OUTPUT","UNIT 03 OUTPUT":"UNIT 03 OUTPUT","UNIT 04 OUTPUT":"UNIT 04 OUTPUT","COOLING TOWERS":"COOLING TOWERS","GENERATORS":"GENERATORS","TRANSFORMERS":"TRANSFORMERS","PIPING":"PIPING","REACTORS":"REACTORS","TURBINES":"TURBINES","STEAM FLOW":"STEAM FLOW","FEEDWATER":"FEEDWATER","CONDENSATE":"CONDENSATE","GRID LOAD":"GRID LOAD","GRID PARAMETERS":"GRID PARAMETERS","GRID STATE":"GRID STATE","GRID STATUS":"GRID STATUS","CURRENT STATUS":"CURRENT STATUS","SITE STATUS":"SITE STATUS","SYSTEM PARAMETERS":"SYSTEM PARAMETERS","STEAM / WATER SYSTEM":"STEAM / WATER SYSTEM","COMMUNICATION AND DATA SYSTEMS":"COMMUNICATION AND DATA SYSTEMS","ELECTRICAL DISTRIBUTION":"ELECTRICAL DISTRIBUTION","INSTRUMENTATION STATUS":"INSTRUMENTATION STATUS","ENVIRONMENTAL MONITORING":"ENVIRONMENTAL MONITORING","LIVE MEASUREMENTS":"LIVE MEASUREMENTS","LIVE ELECTRICAL DATA":"LIVE ELECTRICAL DATA","LIVE ENVIRONMENT DATA":"LIVE ENVIRONMENT DATA","OBJECT DETAILS":"OBJECT DETAILS","DIAGNOSTICS":"DIAGNOSTICS","EVENT AND STATUS LIST":"EVENT AND STATUS LIST","SYSTEM EVENT LOG":"SYSTEM EVENT LOG","PLANT NAVIGATION":"PLANT NAVIGATION","EQUIPMENT MONITORING":"EQUIPMENT MONITORING","CENTRAL MONITORING SYSTEM / ONLINE":"CENTRAL MONITORING SYSTEM / ONLINE","POWER GENERATION FACILITY — CENTRAL MONITORING":"POWER GENERATION FACILITY — CENTRAL MONITORING","LIVE VALUES":"LIVE VALUES","LAST 60 MIN":"LAST 60 MIN","1 SEC REFRESH":"1 SEC REFRESH","PROCESS AREA / ALL UNITS":"PROCESS AREA / ALL UNITS","REACTOR SYSTEMS":"REACTOR SYSTEMS","TURBINE HALL":"TURBINE HALL","STEAM / WATER SYSTEMS":"STEAM / WATER SYSTEMS","AUXILIARY SYSTEMS":"AUXILIARY SYSTEMS","PROCESS TRENDS":"PROCESS TRENDS","EVENT & STATUS LIST":"EVENT & STATUS LIST","GRID / SWITCHYARD":"GRID / SWITCHYARD","INSTRUMENTATION":"INSTRUMENTATION","ENVIRONMENT":"ENVIRONMENT","COMMUNICATIONS":"COMMUNICATIONS","ONLINE":"ONLINE","NORMAL":"NORMAL","READY":"READY","AVAILABLE":"AVAILABLE","CONNECTED":"CONNECTED","GOOD":"GOOD","STABLE":"STABLE","MONITORED":"MONITORED","LOCKED":"LOCKED","CLOSED":"CLOSED","ACTIVE":"ACTIVE","ACKNOWLEDGED":"ACKNOWLEDGED","INFORMATION":"INFORMATION","Status":"Status","Condition":"Condition","Output":"Output","Load":"Load","Temperature":"Temperature","Cooling":"Cooling","Generator":"Generator","Monitoring":"Monitoring","Maintenance":"Maintenance","Communication":"Communication","Communications":"Communications","Last update":"Last update","Equipment":"Equipment","Environment":"Environment","Electrical":"Electrical","Systems":"Systems","Plant navigation":"Plant navigation","Language / Sprache":"Language / Settings","Settings":"Settings","Select the HMI language. The selected language is used throughout the interface.":"Select the HMI language. The selected language is used throughout the interface."};
+const complete_uk = {"FACILITY OVERVIEW":"ОГЛЯД ОБ'ЄКТА","LIVE PLANT STATUS":"ПОТОЧНИЙ СТАН СТАНЦІЇ","REACTOR ISLAND":"РЕАКТОРНИЙ ОСТРІВ","COOLING AREA":"ЗОНА ОХОЛОДЖЕННЯ","TURBINE HALL / GENERATION":"ТУРБІННИЙ ЗАЛ / ГЕНЕРАЦІЯ","LIVE PROCESS TRENDS":"ПОТОЧНІ ТРЕНДИ ПРОЦЕСУ","TOTAL OUTPUT":"СУМАРНА ПОТУЖНІСТЬ","TOTAL FACILITY":"ВСЯ СТАНЦІЯ","TOTAL FACILITY OUTPUT":"ПОТУЖНІСТЬ СТАНЦІЇ","PLANT OUTPUT":"ПОТУЖНІСТЬ СТАНЦІЇ","UNIT PERFORMANCE":"РОБОТА БЛОКІВ","UNIT 01 OUTPUT":"ПОТУЖНІСТЬ БЛОКУ 01","UNIT 02 OUTPUT":"ПОТУЖНІСТЬ БЛОКУ 02","UNIT 03 OUTPUT":"ПОТУЖНІСТЬ БЛОКУ 03","UNIT 04 OUTPUT":"ПОТУЖНІСТЬ БЛОКУ 04","COOLING TOWERS":"ГРАДИРНІ","GENERATORS":"ГЕНЕРАТОРИ","TRANSFORMERS":"ТРАНСФОРМАТОРИ","PIPING":"ТРУБОПРОВОДИ","REACTORS":"РЕАКТОРИ","TURBINES":"ТУРБІНИ","STEAM FLOW":"ВИТРАТА ПАРИ","FEEDWATER":"ЖИВИЛЬНА ВОДА","CONDENSATE":"КОНДЕНСАТ","GRID LOAD":"НАВАНТАЖЕННЯ МЕРЕЖІ","GRID PARAMETERS":"ПАРАМЕТРИ МЕРЕЖІ","GRID STATE":"СТАН МЕРЕЖІ","GRID STATUS":"СТАТУС МЕРЕЖІ","CURRENT STATUS":"ПОТОЧНИЙ СТАН","SITE STATUS":"СТАН МАЙДАНЧИКА","SYSTEM PARAMETERS":"ПАРАМЕТРИ СИСТЕМИ","STEAM / WATER SYSTEM":"ПАРОВА / ВОДЯНА СИСТЕМА","COMMUNICATION AND DATA SYSTEMS":"СИСТЕМИ ЗВ'ЯЗКУ ТА ДАНИХ","ELECTRICAL DISTRIBUTION":"РОЗПОДІЛ ЕЛЕКТРОЕНЕРГІЇ","INSTRUMENTATION STATUS":"СТАН КВП","ENVIRONMENTAL MONITORING":"ЕКОЛОГІЧНИЙ КОНТРОЛЬ","LIVE MEASUREMENTS":"ПОТОЧНІ ВИМІРЮВАННЯ","LIVE ELECTRICAL DATA":"ПОТОЧНІ ЕЛЕКТРИЧНІ ДАНІ","LIVE ENVIRONMENT DATA":"ПОТОЧНІ ДАНІ ДОВКІЛЛЯ","OBJECT DETAILS":"ДЕТАЛІ ОБ'ЄКТА","DIAGNOSTICS":"ДІАГНОСТИКА","EVENT AND STATUS LIST":"СПИСОК ПОДІЙ ТА СТАНІВ","SYSTEM EVENT LOG":"ЖУРНАЛ СИСТЕМНИХ ПОДІЙ","PLANT NAVIGATION":"НАВІГАЦІЯ СТАНЦІЇ","EQUIPMENT MONITORING":"КОНТРОЛЬ ОБЛАДНАННЯ","CENTRAL MONITORING SYSTEM / ONLINE":"ЦЕНТРАЛЬНА СИСТЕМА КОНТРОЛЮ / ОНЛАЙН","POWER GENERATION FACILITY — CENTRAL MONITORING":"ЕНЕРГЕТИЧНА УСТАНОВКА — ЦЕНТРАЛЬНИЙ КОНТРОЛЬ","LIVE VALUES":"ПОТОЧНІ ЗНАЧЕННЯ","LAST 60 MIN":"ОСТАННІ 60 ХВ","1 SEC REFRESH":"ОНОВЛЕННЯ 1 С","PROCESS AREA / ALL UNITS":"ТЕХНОЛОГІЧНА ЗОНА / УСІ БЛОКИ","REACTOR SYSTEMS":"РЕАКТОРНІ СИСТЕМИ","TURBINE HALL":"ТУРБІННИЙ ЗАЛ","STEAM / WATER SYSTEMS":"ПАРОВІ / ВОДЯНІ СИСТЕМИ","AUXILIARY SYSTEMS":"ДОПОМІЖНІ СИСТЕМИ","PROCESS TRENDS":"ТРЕНДИ ПРОЦЕСІВ","EVENT & STATUS LIST":"ПОДІЇ ТА СТАНИ","GRID / SWITCHYARD":"МЕРЕЖА / ВРУ","INSTRUMENTATION":"КОНТРОЛЬНО-ВИМІРЮВАЛЬНІ ПРИЛАДИ","ENVIRONMENT":"ДОВКІЛЛЯ","COMMUNICATIONS":"ЗВ'ЯЗОК","ONLINE":"ОНЛАЙН","NORMAL":"НОРМА","READY":"ГОТОВО","AVAILABLE":"ДОСТУПНО","CONNECTED":"ПІДКЛЮЧЕНО","GOOD":"НОРМА","STABLE":"СТАБІЛЬНО","MONITORED":"ПІД КОНТРОЛЕМ","LOCKED":"ЗАБЛОКОВАНО","CLOSED":"ЗАКРИТО","ACTIVE":"АКТИВНО","ACKNOWLEDGED":"ПІДТВЕРДЖЕНО","INFORMATION":"ІНФОРМАЦІЯ","Status":"Стан","Condition":"Стан","Output":"Потужність","Load":"Навантаження","Temperature":"Температура","Cooling":"Охолодження","Generator":"Генератор","Monitoring":"Моніторинг","Maintenance":"Технічне обслуговування","Communication":"Зв'язок","Communications":"Зв'язок","Last update":"Останнє оновлення","Equipment":"Обладнання","Environment":"Довкілля","Electrical":"Електрика","Systems":"Системи","Plant navigation":"Навігація станції","Language / Sprache":"Мова / Налаштування","Settings":"Налаштування","Select the HMI language. The selected language is used throughout the interface.":"Оберіть мову HMI. Вибрана мова використовується в усьому інтерфейсі."};
+const complete_pl = {"FACILITY OVERVIEW":"PRZEGLĄD ELEKTROWNI","LIVE PLANT STATUS":"BIEŻĄCY STAN ELEKTROWNI","REACTOR ISLAND":"WYSPA REAKTOROWA","COOLING AREA":"OBSZAR CHŁODZENIA","TURBINE HALL / GENERATION":"HALA TURBIN / WYTWARZANIE","LIVE PROCESS TRENDS":"BIEŻĄCE TRENDY PROCESU","TOTAL OUTPUT":"MOC CAŁKOWITA","TOTAL FACILITY":"CAŁA ELEKTROWNIA","TOTAL FACILITY OUTPUT":"MOC CAŁEJ ELEKTROWNI","PLANT OUTPUT":"MOC ELEKTROWNI","UNIT PERFORMANCE":"PRACA BLOKÓW","UNIT 01 OUTPUT":"MOC BLOKU 01","UNIT 02 OUTPUT":"MOC BLOKU 02","UNIT 03 OUTPUT":"MOC BLOKU 03","UNIT 04 OUTPUT":"MOC BLOKU 04","COOLING TOWERS":"CHŁODNIE KOMINOWE","GENERATORS":"GENERATORY","TRANSFORMERS":"TRANSFORMATORY","PIPING":"RUROCIĄGI","REACTORS":"REAKTORY","TURBINES":"TURBINY","STEAM FLOW":"PRZEPŁYW PARY","FEEDWATER":"WODA ZASILAJĄCA","CONDENSATE":"KONDENSAT","GRID LOAD":"OBCIĄŻENIE SIECI","GRID PARAMETERS":"PARAMETRY SIECI","GRID STATE":"STAN SIECI","GRID STATUS":"STATUS SIECI","CURRENT STATUS":"BIEŻĄCY STAN","SITE STATUS":"STAN OBIEKTU","SYSTEM PARAMETERS":"PARAMETRY SYSTEMU","STEAM / WATER SYSTEM":"SYSTEM PARY / WODY","COMMUNICATION AND DATA SYSTEMS":"SYSTEMY ŁĄCZNOŚCI I DANYCH","ELECTRICAL DISTRIBUTION":"ROZDZIAŁ ENERGII ELEKTRYCZNEJ","INSTRUMENTATION STATUS":"STAN APARATURY KONTROLNO-POMIAROWEJ","ENVIRONMENTAL MONITORING":"MONITORING ŚRODOWISKA","LIVE MEASUREMENTS":"BIEŻĄCE POMIARY","LIVE ELECTRICAL DATA":"BIEŻĄCE DANE ELEKTRYCZNE","LIVE ENVIRONMENT DATA":"BIEŻĄCE DANE ŚRODOWISKOWE","OBJECT DETAILS":"SZCZEGÓŁY OBIEKTU","DIAGNOSTICS":"DIAGNOSTYKA","EVENT AND STATUS LIST":"LISTA ZDARZEŃ I STANÓW","SYSTEM EVENT LOG":"DZIENNIK ZDARZEŃ SYSTEMOWYCH","PLANT NAVIGATION":"NAWIGACJA ELEKTROWNI","EQUIPMENT MONITORING":"MONITORING URZĄDZEŃ","CENTRAL MONITORING SYSTEM / ONLINE":"CENTRALNY SYSTEM MONITOROWANIA / ONLINE","POWER GENERATION FACILITY — CENTRAL MONITORING":"OBIEKT WYTWARZANIA ENERGII — MONITORING CENTRALNY","LIVE VALUES":"WARTOŚCI NA ŻYWO","LAST 60 MIN":"OSTATNIE 60 MIN","1 SEC REFRESH":"ODŚWIEŻANIE 1 S","PROCESS AREA / ALL UNITS":"OBSZAR PROCESU / WSZYSTKIE BLOKI","REACTOR SYSTEMS":"SYSTEMY REAKTORÓW","TURBINE HALL":"HALA TURBIN","STEAM / WATER SYSTEMS":"SYSTEMY PARY / WODY","AUXILIARY SYSTEMS":"SYSTEMY POMOCNICZE","PROCESS TRENDS":"TRENDY PROCESOWE","EVENT & STATUS LIST":"LISTA ZDARZEŃ I STANÓW","GRID / SWITCHYARD":"SIEĆ / ROZDZIELNIA","INSTRUMENTATION":"APARATURA POMIAROWA","ENVIRONMENT":"ŚRODOWISKO","COMMUNICATIONS":"ŁĄCZNOŚĆ","ONLINE":"ONLINE","NORMAL":"NORMAL","READY":"READY","AVAILABLE":"AVAILABLE","CONNECTED":"CONNECTED","GOOD":"GOOD","STABLE":"STABLE","MONITORED":"MONITORED","LOCKED":"LOCKED","CLOSED":"CLOSED","ACTIVE":"ACTIVE","ACKNOWLEDGED":"ACKNOWLEDGED","INFORMATION":"INFORMATION","Status":"Stan","Condition":"Stan","Output":"Moc","Load":"Obciążenie","Temperature":"Temperatura","Cooling":"Chłodzenie","Generator":"Generator","Monitoring":"Monitoring","Maintenance":"Konserwacja","Communication":"Łączność","Communications":"Łączność","Last update":"Ostatnia aktualizacja","Equipment":"Urządzenia","Environment":"Środowisko","Electrical":"Elektryka","Systems":"Systemy","Plant navigation":"Nawigacja elektrowni","Language / Sprache":"Język / Ustawienia","Settings":"Ustawienia","Select the HMI language. The selected language is used throughout the interface.":"Wybierz język HMI. Wybrany język jest używany w całym interfejsie."};
+Object.assign(translations.de, complete_de);
+Object.assign(translations.ru, complete_ru);
+Object.assign(translations.en, complete_en);
+Object.assign(translations.uk, complete_uk);
+Object.assign(translations.pl, complete_pl);
+
+Object.assign(translations.de,hmiExtra);
+Object.assign(translations.ru,hmiExtraRu);
+Object.assign(translations.uk,hmiExtraUk);
+Object.assign(translations.pl,hmiExtraPl);
+Object.assign(translations.en,Object.fromEntries(Object.keys(hmiExtra).map(k=>[k,k])));
+
+const runtimeNames = {
+  de: {"REACTOR UNIT":"REAKTORBLOCK","TURBINE GENERATOR":"TURBINENGENERATOR","COOLING TOWER":"KÜHLTURM","TRANSFORMER":"TRANSFORMATOR"},
+  ru: {"REACTOR UNIT":"РЕАКТОРНЫЙ БЛОК","TURBINE GENERATOR":"ТУРБОГЕНЕРАТОР","COOLING TOWER":"ГРАДИРНЯ","TRANSFORMER":"ТРАНСФОРМАТОР"},
+  en: {"REACTOR UNIT":"REACTOR UNIT","TURBINE GENERATOR":"TURBINE GENERATOR","COOLING TOWER":"COOLING TOWER","TRANSFORMER":"TRANSFORMER"},
+  uk: {"REACTOR UNIT":"РЕАКТОРНИЙ БЛОК","TURBINE GENERATOR":"ТУРБОГЕНЕРАТОР","COOLING TOWER":"ГРАДИРНЯ","TRANSFORMER":"ТРАНСФОРМАТОР"},
+  pl: {"REACTOR UNIT":"BLOK REAKTORA","TURBINE GENERATOR":"TURBOGENERATOR","COOLING TOWER":"CHŁODNIA KOMINOWA","TRANSFORMER":"TRANSFORMATOR"}
+};
+
+function translateRuntime(value){
+  if(typeof value!=='string') return value;
+  const dict=translations[currentLanguage]||{};
+  if(dict[value]) return dict[value];
+  const m=value.match(/^(REACTOR UNIT|TURBINE GENERATOR|COOLING TOWER|TRANSFORMER) (\d+)$/);
+  if(m){
+    const prefix=(runtimeNames[currentLanguage]||runtimeNames.en)[m[1]]||m[1];
+    return prefix+' '+m[2];
+  }
+  let out=value;
+  Object.keys(dict).sort((a,b)=>b.length-a.length).forEach(k=>{
+    if(k && out.includes(k)) out=out.split(k).join(dict[k]);
+  });
+  return out;
+}
+
+Object.assign(translations.de, {"Deutsch":"Deutsch","Русский":"Russisch","English":"Englisch","Українська":"Ukrainisch","Polski":"Polnisch","REACTOR ISLAND":"REAKTORINSEL","COOLING AREA":"KÜHLBEREICH","TURBINE HALL / GENERATION":"TURBINENHALLE / ERZEUGUNG","COOLING TOWERS":"KÜHLTÜRME","GENERATORS":"GENERATOREN","TRANSFORMERS":"TRANSFORMATOREN","PIPING":"ROHRLEITUNGEN"});
+Object.assign(translations.ru, {"Deutsch":"Немецкий","Русский":"Русский","English":"Английский","Українська":"Украинский","Polski":"Польский","REACTOR ISLAND":"РЕАКТОРНЫЙ ОСТРОВ","COOLING AREA":"ЗОНА ОХЛАЖДЕНИЯ","TURBINE HALL / GENERATION":"ТУРБИННЫЙ ЗАЛ / ГЕНЕРАЦИЯ","COOLING TOWERS":"ГРАДИРНИ","GENERATORS":"ГЕНЕРАТОРЫ","TRANSFORMERS":"ТРАНСФОРМАТОРЫ","PIPING":"ТРУБОПРОВОДЫ"});
+Object.assign(translations.en, {"Deutsch":"German","Русский":"Russian","English":"English","Українська":"Ukrainian","Polski":"Polish"});
+Object.assign(translations.uk, {"Deutsch":"Німецька","Русский":"Російська","English":"Англійська","Українська":"Українська","Polski":"Польська","REACTOR ISLAND":"РЕАКТОРНИЙ ОСТРІВ","COOLING AREA":"ЗОНА ОХОЛОДЖЕННЯ","TURBINE HALL / GENERATION":"ТУРБІННИЙ ЗАЛ / ГЕНЕРАЦІЯ","COOLING TOWERS":"ГРАДИРНІ","GENERATORS":"ГЕНЕРАТОРИ","TRANSFORMERS":"ТРАНСФОРМАТОРИ","PIPING":"ТРУБОПРОВОДИ"});
+Object.assign(translations.pl, {"Deutsch":"Niemiecki","Русский":"Rosyjski","English":"Angielski","Українська":"Ukraiński","Polski":"Polski","REACTOR ISLAND":"WYSPA REAKTORA","COOLING AREA":"OBSZAR CHŁODZENIA","TURBINE HALL / GENERATION":"HALA TURBIN / GENERACJA","COOLING TOWERS":"CHŁODNIE KOMINOWE","GENERATORS":"GENERATORY","TRANSFORMERS":"TRANSFORMATORY","PIPING":"RUROCIĄGI"});
+
+
+const supplement = {
+ de: {
+  "Industrial Plant Monitoring":"Industrielle Kraftwerksüberwachung","INDUSTRIAL":"INDUSTRIELL","MONITORING":"ÜBERWACHUNG","SYSTEM":"SYSTEM","NETWORK":"NETZWERK","EVENTS":"EREIGNISSE","Plant navigation":"Kraftwerksnavigation","▣ PLANT OVERVIEW":"▣ KRAFTWERKSÜBERSICHT","◉ REACTOR SYSTEMS":"◉ REAKTORSYSTEME","◈ TURBINE HALL":"◈ TURBINENHALLE","▥ COOLING SYSTEM":"▥ KÜHLSYSTEM","≋ STEAM / WATER":"≋ DAMPF / WASSER","⚡ ELECTRICAL":"⚡ ELEKTRIK","▤ AUXILIARY SYSTEMS":"▤ HILFSSYSTEME","≋ TRENDS":"≋ TRENDS","! EVENTS":"! EREIGNISSE","▤ SYSTEM LOG":"▤ SYSTEMPROTOKOLL","Systems":"Systeme","Equipment":"Anlagen","Instrumentation":"Messtechnik","Environment":"Umwelt","Grid / Switchyard":"Netz / Schaltanlage","Communications":"Kommunikation","Plant Overview":"Kraftwerksübersicht","PLANT":"KRAFTWERK","REACTORS":"REAKTOREN","GENERATORS":"GENERATOREN","TURBINES":"TURBINEN","PIPING":"ROHRLEITUNGEN","PROCESS CONNECTIONS: steam -> turbine -> condenser -> cooling -> return":"PROZESSVERBINDUNGEN: Dampf → Turbine → Kondensator → Kühlung → Rücklauf","electrical collector to transformers":"Elektrische Sammelschiene zu Transformatoren","LIVE PLANT STATUS":"AKTUELLER KRAFTWERKSSTATUS","Unit 01":"Block 01","Unit 02":"Block 02","Unit 03":"Block 03","Unit 04":"Block 04","Turbine Hall":"Turbinenhalle","Cooling System":"Kühlsystem","Steam System":"Dampfsystem","Electrical Grid":"Stromnetz","Water Treatment":"Wasseraufbereitung","Maintenance":"Wartung","LIVE PROCESS TRENDS":"AKTUELLE PROZESSTRENDS","LAST 60 MIN":"LETZTE 60 MIN","TOTAL OUTPUT":"GESAMTLEISTUNG","COOLING":"KÜHLUNG","GRID LOAD":"NETZLAST","STEAM SYSTEM":"DAMPFSYSTEM","UNIT PERFORMANCE":"BLOCKLEISTUNG","LIVE VALUES":"AKTUELLE WERTE","TOTAL FACILITY":"GESAMTKRAFTWERK","AVAILABILITY":"VERFÜGBARKEIT","SYSTEM PARAMETERS":"SYSTEMPARAMETER","Primary system":"Primärsystem","Secondary system":"Sekundärsystem","Monitoring channels":"Überwachungskanäle","Communication":"Kommunikation","Data quality":"Datenqualität","Language / Sprache":"Sprache / Einstellungen","Select the HMI language. The selected language is used throughout the interface.":"HMI-Sprache auswählen. Die gewählte Sprache wird in der gesamten Oberfläche verwendet.","STEAM / WATER SYSTEM":"DAMPF-/WASSERSYSTEM","Steam system status":"Status Dampfsystem","Condensate system":"Kondensatsystem","Feedwater system":"Speisewassersystem","Heat exchangers":"Wärmetauscher","LIVE MEASUREMENTS":"AKTUELLE MESSWERTE","STEAM FLOW":"DAMPFSTROM","% reference":"% Referenz","CONDENSATE":"KONDENSAT","FEEDWATER":"SPEISEWASSER","WATER QUALITY":"WASSERQUALITÄT","ELECTRICAL DISTRIBUTION":"ELEKTRISCHE VERTEILUNG","Grid connection":"Netzanschluss","Main bus A":"Hauptsammelschiene A","Main bus B":"Hauptsammelschiene B","Transformer group":"Transformatorgruppe","Auxiliary power":"Hilfsenergie","Emergency supply":"Notstromversorgung","Switchyard":"Schaltanlage","LIVE ELECTRICAL DATA":"AKTUELLE ELEKTRISCHE DATEN","PLANT AUXILIARY":"KRAFTWERKSEIGENBEDARF","GRID STATUS":"NETZSTATUS","EVENT AND STATUS LIST":"EREIGNIS- UND STATUSLISTE","ACTIVE / 127 HISTORICAL":"AKTIV / 127 HISTORISCH","TIME":"ZEIT","STATE":"ZUSTAND","DESCRIPTION":"BESCHREIBUNG","Scheduled inspection record updated":"Geplantes Inspektionsprotokoll aktualisiert","Diagnostic information available":"Diagnoseinformationen verfügbar","Cooling":"Kühlung","Routine equipment status message":"Routinemäßige Anlagenstatusmeldung","System status confirmed normal":"Systemstatus als normal bestätigt","Electrical":"Elektrik","Routine monitoring update":"Routinemäßige Überwachungsaktualisierung","SYSTEM EVENT LOG":"SYSTEMEREIGNISPROTOKOLL","INSTRUMENTATION STATUS":"MESSTECHNIKSTATUS","ENVIRONMENTAL MONITORING":"UMWELTÜBERWACHUNG","Air monitoring":"Luftüberwachung","Water monitoring":"Wasserüberwachung","Weather station":"Wetterstation","Site monitoring":"Standortüberwachung","Perimeter monitoring":"Perimeterüberwachung","Data acquisition":"Datenerfassung","LIVE ENVIRONMENT DATA":"AKTUELLE UMWELTDATEN","OUTSIDE TEMP.":"AUSSENTEMPERATUR","HUMIDITY":"LUFTFEUCHTIGKEIT","WIND SPEED":"WINDGESCHWINDIGKEIT","SITE STATUS":"STANDORTSTATUS","GRID / SWITCHYARD":"NETZ / SCHALTANLAGE","Export monitoring":"Einspeiseüberwachung","Protection system":"Schutzsystem","GRID PARAMETERS":"NETZPARAMETER","PLANT OUTPUT":"KRAFTWERKSLEISTUNG","AUXILIARY LOAD":"EIGENBEDARF","GRID STATE":"NETZZUSTAND","COMMUNICATION AND DATA SYSTEMS":"KOMMUNIKATIONS- UND DATENSYSTEME","Plant network":"Kraftwerksnetz","Control network":"Leitnetz","Historian":"Prozessarchiv","Time synchronization":"Zeitsynchronisation","Data archive":"Datenarchiv","Operator terminals":"Bedienplätze","Engineering workstation":"Engineering-Arbeitsplatz","Remote monitoring":"Fernüberwachung","CENTRAL MONITORING / SYSTEM STATUS:":"ZENTRALÜBERWACHUNG / SYSTEMSTATUS:","OBJECT DETAILS":"OBJEKTDETAILS","CURRENT STATUS":"AKTUELLER STATUS","System state":"Systemzustand","Load / activity":"Last / Aktivität","Temperature reference":"Temperaturreferenz","DIAGNOSTICS":"DIAGNOSE","Diagnostic channel":"Diagnosekanal"
+ },
+ ru: {
+  "Industrial Plant Monitoring":"Промышленный мониторинг станции","INDUSTRIAL":"ПРОМЫШЛЕННЫЙ","MONITORING":"МОНИТОРИНГ","SYSTEM":"СИСТЕМА","NETWORK":"СЕТЬ","EVENTS":"СОБЫТИЯ","Plant navigation":"Навигация станции","▣ PLANT OVERVIEW":"▣ ОБЗОР СТАНЦИИ","◉ REACTOR SYSTEMS":"◉ РЕАКТОРНЫЕ СИСТЕМЫ","◈ TURBINE HALL":"◈ ТУРБИННЫЙ ЗАЛ","▥ COOLING SYSTEM":"▥ СИСТЕМА ОХЛАЖДЕНИЯ","≋ STEAM / WATER":"≋ ПАР / ВОДА","⚡ ELECTRICAL":"⚡ ЭЛЕКТРИКА","▤ AUXILIARY SYSTEMS":"▤ ВСПОМОГАТЕЛЬНЫЕ СИСТЕМЫ","≋ TRENDS":"≋ ТРЕНДЫ","! EVENTS":"! СОБЫТИЯ","▤ SYSTEM LOG":"▤ СИСТЕМНЫЙ ЖУРНАЛ","Systems":"Системы","Equipment":"Оборудование","Instrumentation":"Контрольно-измерительные приборы","Environment":"Окружающая среда","Grid / Switchyard":"Сеть / ОРУ","Communications":"Связь","Plant Overview":"Обзор станции","PLANT":"СТАНЦИЯ","REACTORS":"РЕАКТОРЫ","GENERATORS":"ГЕНЕРАТОРЫ","TURBINES":"ТУРБИНЫ","PIPING":"ТРУБОПРОВОДЫ","PROCESS CONNECTIONS: steam -> turbine -> condenser -> cooling -> return":"ПРОЦЕССНЫЕ СВЯЗИ: пар → турбина → конденсатор → охлаждение → возврат","electrical collector to transformers":"Электрическая сборная шина к трансформаторам","LIVE PLANT STATUS":"ТЕКУЩЕЕ СОСТОЯНИЕ СТАНЦИИ","Unit 01":"Блок 01","Unit 02":"Блок 02","Unit 03":"Блок 03","Unit 04":"Блок 04","Turbine Hall":"Турбинный зал","Cooling System":"Система охлаждения","Steam System":"Паровая система","Electrical Grid":"Электрическая сеть","Water Treatment":"Водоочистка","Maintenance":"Техническое обслуживание","LIVE PROCESS TRENDS":"ТЕКУЩИЕ ТРЕНДЫ ПРОЦЕССА","LAST 60 MIN":"ПОСЛЕДНИЕ 60 МИН","TOTAL OUTPUT":"ОБЩАЯ МОЩНОСТЬ","COOLING":"ОХЛАЖДЕНИЕ","GRID LOAD":"НАГРУЗКА СЕТИ","STEAM SYSTEM":"ПАРОВАЯ СИСТЕМА","UNIT PERFORMANCE":"РАБОТА БЛОКОВ","LIVE VALUES":"ТЕКУЩИЕ ЗНАЧЕНИЯ","TOTAL FACILITY":"ВСЯ СТАНЦИЯ","AVAILABILITY":"ДОСТУПНОСТЬ","SYSTEM PARAMETERS":"ПАРАМЕТРЫ СИСТЕМЫ","Primary system":"Первичный контур","Secondary system":"Вторичный контур","Monitoring channels":"Каналы контроля","Communication":"Связь","Data quality":"Качество данных","Language / Sprache":"Язык / Настройки","Select the HMI language. The selected language is used throughout the interface.":"Выберите язык HMI. Выбранный язык используется во всём интерфейсе.","STEAM / WATER SYSTEM":"ПАРОВАЯ / ВОДЯНАЯ СИСТЕМА","Steam system status":"Состояние паровой системы","Condensate system":"Конденсатная система","Feedwater system":"Питательная система","Heat exchangers":"Теплообменники","LIVE MEASUREMENTS":"ТЕКУЩИЕ ИЗМЕРЕНИЯ","STEAM FLOW":"РАСХОД ПАРА","% reference":"% от опорного значения","CONDENSATE":"КОНДЕНСАТ","FEEDWATER":"ПИТАТЕЛЬНАЯ ВОДА","WATER QUALITY":"КАЧЕСТВО ВОДЫ","ELECTRICAL DISTRIBUTION":"РАСПРЕДЕЛЕНИЕ ЭЛЕКТРОЭНЕРГИИ","Grid connection":"Подключение к сети","Main bus A":"Главная шина A","Main bus B":"Главная шина B","Transformer group":"Группа трансформаторов","Auxiliary power":"Собственные нужды","Emergency supply":"Аварийное питание","Switchyard":"Распределительное устройство","LIVE ELECTRICAL DATA":"ТЕКУЩИЕ ЭЛЕКТРИЧЕСКИЕ ДАННЫЕ","PLANT AUXILIARY":"СОБСТВЕННЫЕ НУЖДЫ СТАНЦИИ","GRID STATUS":"СТАТУС СЕТИ","EVENT AND STATUS LIST":"СПИСОК СОБЫТИЙ И СОСТОЯНИЙ","ACTIVE / 127 HISTORICAL":"АКТИВНЫЕ / 127 ИСТОРИЧЕСКИХ","TIME":"ВРЕМЯ","STATE":"СОСТОЯНИЕ","DESCRIPTION":"ОПИСАНИЕ","Scheduled inspection record updated":"Запись плановой инспекции обновлена","Diagnostic information available":"Доступна диагностическая информация","Cooling":"Охлаждение","Routine equipment status message":"Стандартное сообщение о состоянии оборудования","System status confirmed normal":"Состояние системы подтверждено как нормальное","Electrical":"Электрика","Routine monitoring update":"Плановое обновление мониторинга","SYSTEM EVENT LOG":"ЖУРНАЛ СИСТЕМНЫХ СОБЫТИЙ","INSTRUMENTATION STATUS":"СОСТОЯНИЕ КИП","ENVIRONMENTAL MONITORING":"ЭКОЛОГИЧЕСКИЙ КОНТРОЛЬ","Air monitoring":"Контроль воздуха","Water monitoring":"Контроль воды","Weather station":"Метеостанция","Site monitoring":"Контроль площадки","Perimeter monitoring":"Контроль периметра","Data acquisition":"Сбор данных","LIVE ENVIRONMENT DATA":"ТЕКУЩИЕ ДАННЫЕ ОКРУЖАЮЩЕЙ СРЕДЫ","OUTSIDE TEMP.":"НАРУЖНАЯ ТЕМП.","HUMIDITY":"ВЛАЖНОСТЬ","WIND SPEED":"СКОРОСТЬ ВЕТРА","SITE STATUS":"СТАТУС ПЛОЩАДКИ","Export monitoring":"Контроль выдачи мощности","Protection system":"Система защиты","GRID PARAMETERS":"ПАРАМЕТРЫ СЕТИ","PLANT OUTPUT":"МОЩНОСТЬ СТАНЦИИ","AUXILIARY LOAD":"НАГРУЗКА СОБСТВЕННЫХ НУЖД","GRID STATE":"СОСТОЯНИЕ СЕТИ","COMMUNICATION AND DATA SYSTEMS":"СИСТЕМЫ СВЯЗИ И ДАННЫХ","Plant network":"Сеть станции","Control network":"Сеть управления","Historian":"Архив процессов","Time synchronization":"Синхронизация времени","Data archive":"Архив данных","Operator terminals":"Операторские терминалы","Engineering workstation":"Инженерная станция","Remote monitoring":"Удалённый мониторинг","CENTRAL MONITORING / SYSTEM STATUS:":"ЦЕНТРАЛЬНЫЙ МОНИТОРИНГ / СОСТОЯНИЕ СИСТЕМЫ:","OBJECT DETAILS":"ДЕТАЛИ ОБЪЕКТА","CURRENT STATUS":"ТЕКУЩЕЕ СОСТОЯНИЕ","System state":"Состояние системы","Load / activity":"Нагрузка / активность","Temperature reference":"Температурная опора","DIAGNOSTICS":"ДИАГНОСТИКА","Diagnostic channel":"Канал диагностики"
+ },
+ en: {},
+ uk: {},
+ pl: {}
+};
+for(const [lang,dict] of Object.entries(supplement)) Object.assign(translations[lang],dict);
+
+
+Object.assign(translations.uk, {
+"Industrial Plant Monitoring":"Промисловий моніторинг станції","INDUSTRIAL":"ПРОМИСЛОВИЙ","MONITORING":"МОНІТОРИНГ","SYSTEM":"СИСТЕМА","NETWORK":"МЕРЕЖА","EVENTS":"ПОДІЇ","Plant navigation":"Навігація станції","Systems":"Системи","Equipment":"Обладнання","Instrumentation":"Контрольно-вимірювальні прилади","Environment":"Довкілля","Plant Overview":"Огляд станції","PLANT":"СТАНЦІЯ","REACTORS":"РЕАКТОРИ","GENERATORS":"ГЕНЕРАТОРИ","TURBINES":"ТУРБІНИ","PIPING":"ТРУБОПРОВОДИ","LIVE PLANT STATUS":"ПОТОЧНИЙ СТАН СТАНЦІЇ","Unit 01":"Блок 01","Unit 02":"Блок 02","Unit 03":"Блок 03","Unit 04":"Блок 04","Turbine Hall":"Турбінний зал","Cooling System":"Система охолодження","Steam System":"Парова система","Electrical Grid":"Електрична мережа","Water Treatment":"Водоочищення","Maintenance":"Технічне обслуговування","LIVE PROCESS TRENDS":"ПОТОЧНІ ТРЕНДИ ПРОЦЕСУ","LAST 60 MIN":"ОСТАННІ 60 ХВ","TOTAL OUTPUT":"СУМАРНА ПОТУЖНІСТЬ","COOLING":"ОХОЛОДЖЕННЯ","GRID LOAD":"НАВАНТАЖЕННЯ МЕРЕЖІ","STEAM SYSTEM":"ПАРОВА СИСТЕМА","UNIT PERFORMANCE":"РОБОТА БЛОКІВ","LIVE VALUES":"ПОТОЧНІ ЗНАЧЕННЯ","TOTAL FACILITY":"ВСЯ СТАНЦІЯ","AVAILABILITY":"ДОСТУПНІСТЬ","SYSTEM PARAMETERS":"ПАРАМЕТРИ СИСТЕМИ","Primary system":"Первинний контур","Secondary system":"Вторинний контур","Monitoring channels":"Канали контролю","Communication":"Зв'язок","Data quality":"Якість даних","Steam system status":"Стан парової системи","Condensate system":"Конденсатна система","Feedwater system":"Система живильної води","Heat exchangers":"Теплообмінники","LIVE MEASUREMENTS":"ПОТОЧНІ ВИМІРЮВАННЯ","STEAM FLOW":"ВИТРАТА ПАРИ","% reference":"% від опорного","CONDENSATE":"КОНДЕНСАТ","FEEDWATER":"ЖИВИЛЬНА ВОДА","WATER QUALITY":"ЯКІСТЬ ВОДИ","ELECTRICAL DISTRIBUTION":"РОЗПОДІЛ ЕЛЕКТРОЕНЕРГІЇ","Grid connection":"Підключення до мережі","Main bus A":"Головна шина A","Main bus B":"Головна шина B","Transformer group":"Група трансформаторів","Auxiliary power":"Власні потреби","Emergency supply":"Аварійне живлення","Switchyard":"Розподільний пристрій","LIVE ELECTRICAL DATA":"ПОТОЧНІ ЕЛЕКТРИЧНІ ДАНІ","PLANT AUXILIARY":"ВЛАСНІ ПОТРЕБИ СТАНЦІЇ","GRID STATUS":"СТАТУС МЕРЕЖІ","EVENT AND STATUS LIST":"СПИСОК ПОДІЙ ТА СТАНІВ","ACTIVE / 127 HISTORICAL":"АКТИВНІ / 127 ІСТОРИЧНИХ","TIME":"ЧАС","STATE":"СТАН","DESCRIPTION":"ОПИС","SYSTEM EVENT LOG":"ЖУРНАЛ СИСТЕМНИХ ПОДІЙ","INSTRUMENTATION STATUS":"СТАН КВП","ENVIRONMENTAL MONITORING":"ЕКОЛОГІЧНИЙ КОНТРОЛЬ","Air monitoring":"Контроль повітря","Water monitoring":"Контроль води","Weather station":"Метеостанція","Site monitoring":"Контроль майданчика","Perimeter monitoring":"Контроль периметра","Data acquisition":"Збір даних","LIVE ENVIRONMENT DATA":"ПОТОЧНІ ДАНІ ДОВКІЛЛЯ","OUTSIDE TEMP.":"ЗОВНІШНЯ ТЕМП.","HUMIDITY":"ВОЛОГІСТЬ","WIND SPEED":"ШВИДКІСТЬ ВІТРУ","SITE STATUS":"СТАН МАЙДАНЧИКА","Export monitoring":"Контроль видачі","Protection system":"Система захисту","GRID PARAMETERS":"ПАРАМЕТРИ МЕРЕЖІ","PLANT OUTPUT":"ПОТУЖНІСТЬ СТАНЦІЇ","AUXILIARY LOAD":"НАВАНТАЖЕННЯ ВЛАСНИХ ПОТРЕБ","GRID STATE":"СТАН МЕРЕЖІ","COMMUNICATION AND DATA SYSTEMS":"СИСТЕМИ ЗВ'ЯЗКУ ТА ДАНИХ","Plant network":"Мережа станції","Control network":"Мережа керування","Historian":"Архів процесів","Time synchronization":"Синхронізація часу","Data archive":"Архів даних","Operator terminals":"Операторські термінали","Engineering workstation":"Інженерна станція","Remote monitoring":"Віддалений моніторинг","OBJECT DETAILS":"ДЕТАЛІ ОБ'ЄКТА","CURRENT STATUS":"ПОТОЧНИЙ СТАН","System state":"Стан системи","Load / activity":"Навантаження / активність","Temperature reference":"Температурний орієнтир","DIAGNOSTICS":"ДІАГНОСТИКА","Diagnostic channel":"Канал діагностики"
+});
+Object.assign(translations.pl, {
+"Industrial Plant Monitoring":"Przemysłowy monitoring elektrowni","INDUSTRIAL":"PRZEMYSŁOWY","MONITORING":"MONITORING","SYSTEM":"SYSTEM","NETWORK":"SIEĆ","EVENTS":"ZDARZENIA","Plant navigation":"Nawigacja elektrowni","Systems":"Systemy","Equipment":"Urządzenia","Instrumentation":"Aparatura pomiarowa","Environment":"Środowisko","Plant Overview":"Przegląd elektrowni","PLANT":"ELEKTROWNIA","REACTORS":"REAKTORY","GENERATORS":"GENERATORY","TURBINES":"TURBINY","PIPING":"RUROCIĄGI","LIVE PLANT STATUS":"BIEŻĄCY STAN ELEKTROWNI","Unit 01":"Blok 01","Unit 02":"Blok 02","Unit 03":"Blok 03","Unit 04":"Blok 04","Turbine Hall":"Hala turbin","Cooling System":"System chłodzenia","Steam System":"System parowy","Electrical Grid":"Sieć elektroenergetyczna","Water Treatment":"Uzdatnianie wody","Maintenance":"Konserwacja","LIVE PROCESS TRENDS":"BIEŻĄCE TRENDY PROCESU","LAST 60 MIN":"OSTATNIE 60 MIN","TOTAL OUTPUT":"MOC CAŁKOWITA","COOLING":"CHŁODZENIE","GRID LOAD":"OBCIĄŻENIE SIECI","STEAM SYSTEM":"SYSTEM PARY","UNIT PERFORMANCE":"PRACA BLOKÓW","LIVE VALUES":"WARTOŚCI NA ŻYWO","TOTAL FACILITY":"CAŁA ELEKTROWNIA","AVAILABILITY":"DOSTĘPNOŚĆ","SYSTEM PARAMETERS":"PARAMETRY SYSTEMU","Primary system":"Układ pierwotny","Secondary system":"Układ wtórny","Monitoring channels":"Kanały monitoringu","Communication":"Łączność","Data quality":"Jakość danych","Steam system status":"Stan systemu parowego","Condensate system":"Układ kondensatu","Feedwater system":"Układ wody zasilającej","Heat exchangers":"Wymienniki ciepła","LIVE MEASUREMENTS":"BIEŻĄCE POMIARY","STEAM FLOW":"PRZEPŁYW PARY","% reference":"% wartości odniesienia","CONDENSATE":"KONDENSAT","FEEDWATER":"WODA ZASILAJĄCA","WATER QUALITY":"JAKOŚĆ WODY","ELECTRICAL DISTRIBUTION":"ROZDZIAŁ ENERGII ELEKTRYCZNEJ","Grid connection":"Przyłączenie do sieci","Main bus A":"Szyna główna A","Main bus B":"Szyna główna B","Transformer group":"Grupa transformatorów","Auxiliary power":"Zasilanie potrzeb własnych","Emergency supply":"Zasilanie awaryjne","Switchyard":"Rozdzielnia","LIVE ELECTRICAL DATA":"BIEŻĄCE DANE ELEKTRYCZNE","PLANT AUXILIARY":"POTRZEBY WŁASNE ELEKTROWNI","GRID STATUS":"STATUS SIECI","EVENT AND STATUS LIST":"LISTA ZDARZEŃ I STANÓW","ACTIVE / 127 HISTORICAL":"AKTYWNE / 127 HISTORYCZNYCH","TIME":"CZAS","STATE":"STAN","DESCRIPTION":"OPIS","SYSTEM EVENT LOG":"DZIENNIK ZDARZEŃ SYSTEMOWYCH","INSTRUMENTATION STATUS":"STAN APARATURY POMIAROWEJ","ENVIRONMENTAL MONITORING":"MONITORING ŚRODOWISKA","Air monitoring":"Monitoring powietrza","Water monitoring":"Monitoring wody","Weather station":"Stacja pogodowa","Site monitoring":"Monitoring terenu","Perimeter monitoring":"Monitoring obwodowy","Data acquisition":"Akwizycja danych","LIVE ENVIRONMENT DATA":"BIEŻĄCE DANE ŚRODOWISKOWE","OUTSIDE TEMP.":"TEMPERATURA ZEWN.","HUMIDITY":"WILGOTNOŚĆ","WIND SPEED":"PRĘDKOŚĆ WIATRU","SITE STATUS":"STAN OBIEKTU","Export monitoring":"Monitoring eksportu","Protection system":"System zabezpieczeń","GRID PARAMETERS":"PARAMETRY SIECI","PLANT OUTPUT":"MOC ELEKTROWNI","AUXILIARY LOAD":"OBCIĄŻENIE POTRZEB WŁASNYCH","GRID STATE":"STAN SIECI","COMMUNICATION AND DATA SYSTEMS":"SYSTEMY ŁĄCZNOŚCI I DANYCH","Plant network":"Sieć elektrowni","Control network":"Sieć sterowania","Historian":"Archiwum procesowe","Time synchronization":"Synchronizacja czasu","Data archive":"Archiwum danych","Operator terminals":"Stanowiska operatorów","Engineering workstation":"Stanowisko inżynierskie","Remote monitoring":"Monitoring zdalny","OBJECT DETAILS":"SZCZEGÓŁY OBIEKTU","CURRENT STATUS":"BIEŻĄCY STAN","System state":"Stan systemu","Load / activity":"Obciążenie / aktywność","Temperature reference":"Temperatura odniesienia","DIAGNOSTICS":"DIAGNOSTYKA","Diagnostic channel":"Kanał diagnostyczny"
+});
+
+
+/* =========================================================
+   EXTENDED LANGUAGE COVERAGE
+   All operator-visible labels use the same source vocabulary.
+========================================================= */
+Object.assign(translations.en, {
+  "FACILITY OVERVIEW":"FACILITY OVERVIEW","PROCESS AREA / ALL UNITS":"PROCESS AREA / ALL UNITS",
+  "REACTOR ISLAND":"REACTOR ISLAND","COOLING AREA":"COOLING AREA","TURBINE HALL / GENERATION":"TURBINE HALL / GENERATION",
+  "LIVE PLANT STATUS":"LIVE PLANT STATUS","1 SEC REFRESH":"1 SEC REFRESH","NORMAL":"NORMAL","STABLE":"STABLE","CONNECTED":"CONNECTED",
+  "Water Treatment":"Water Treatment","Ventilation":"Ventilation","Maintenance":"Maintenance","Communications":"Communications",
+  "LIVE PROCESS TRENDS":"LIVE PROCESS TRENDS","LAST 60 MIN":"LAST 60 MIN","TOTAL OUTPUT":"TOTAL OUTPUT","COOLING":"COOLING",
+  "GRID LOAD":"GRID LOAD","STEAM SYSTEM":"STEAM SYSTEM","UNIT PERFORMANCE":"UNIT PERFORMANCE","TOTAL FACILITY":"TOTAL FACILITY",
+  "AVAILABILITY":"AVAILABILITY","SYSTEM PARAMETERS":"SYSTEM PARAMETERS","Primary system":"Primary system","Secondary system":"Secondary system",
+  "Monitoring channels":"Monitoring channels","Communication":"Communication","Data quality":"Data quality","Last update":"Last update",
+  "STEAM / WATER SYSTEM":"STEAM / WATER SYSTEM","Steam system status":"Steam system status","Condensate system":"Condensate system",
+  "Feedwater system":"Feedwater system","Heat exchangers":"Heat exchangers","LIVE MEASUREMENTS":"LIVE MEASUREMENTS",
+  "STEAM FLOW":"STEAM FLOW","% reference":"% reference","CONDENSATE":"CONDENSATE","FEEDWATER":"FEEDWATER","WATER QUALITY":"WATER QUALITY",
+  "ELECTRICAL DISTRIBUTION":"ELECTRICAL DISTRIBUTION","Emergency supply":"Emergency supply","Switchyard":"Switchyard",
+  "LIVE ELECTRICAL DATA":"LIVE ELECTRICAL DATA","PLANT AUXILIARY":"PLANT AUXILIARY","GRID STATUS":"GRID STATUS",
+  "EVENT AND STATUS LIST":"EVENT AND STATUS LIST","ACTIVE / 127 HISTORICAL":"ACTIVE / 127 HISTORICAL",
+  "SYSTEM EVENT LOG":"SYSTEM EVENT LOG","INSTRUMENTATION STATUS":"INSTRUMENTATION STATUS","ENVIRONMENTAL MONITORING":"ENVIRONMENTAL MONITORING",
+  "Site monitoring":"Site monitoring","Perimeter monitoring":"Perimeter monitoring","LIVE ENVIRONMENT DATA":"LIVE ENVIRONMENT DATA",
+  "OUTSIDE TEMP.":"OUTSIDE TEMP.","HUMIDITY":"HUMIDITY","WIND SPEED":"WIND SPEED","SITE STATUS":"SITE STATUS",
+  "GRID PARAMETERS":"GRID PARAMETERS","PLANT OUTPUT":"PLANT OUTPUT","AUXILIARY LOAD":"AUXILIARY LOAD","GRID STATE":"GRID STATE",
+  "COMMUNICATION AND DATA SYSTEMS":"COMMUNICATION AND DATA SYSTEMS","Historian":"Historian","Operator terminals":"Operator terminals",
+  "Remote monitoring":"Remote monitoring","OBJECT DETAILS":"OBJECT DETAILS","CURRENT STATUS":"CURRENT STATUS",
+  "System state":"System state","Load / activity":"Load / activity","Temperature reference":"Temperature reference","DIAGNOSTICS":"DIAGNOSTICS"
+});
+const commonExtended = {
+  "FACILITY OVERVIEW":"KRAFTWERKSÜBERSICHT","PROCESS AREA / ALL UNITS":"PROZESSBEREICH / ALLE BLÖCKE",
+  "REACTOR ISLAND":"REAKTORINSEL","COOLING AREA":"KÜHLBEREICH","TURBINE HALL / GENERATION":"TURBINENHALLE / ERZEUGUNG",
+  "LIVE PLANT STATUS":"AKTUELLER ANLAGENSTATUS","LIVE PROCESS TRENDS":"AKTUELLE PROZESSTRENDS","TOTAL OUTPUT":"GESAMTLEISTUNG",
+  "GRID LOAD":"NETZLAST","UNIT PERFORMANCE":"BLOCKLEISTUNG","TOTAL FACILITY":"GESAMTANLAGE","SYSTEM PARAMETERS":"SYSTEMPARAMETER",
+  "STEAM / WATER SYSTEM":"DAMPF- / WASSERSYSTEM","LIVE MEASUREMENTS":"AKTUELLE MESSWERTE","STEAM FLOW":"DAMPFDURCHFLUSS",
+  "WATER QUALITY":"WASSERQUALITÄT","ELECTRICAL DISTRIBUTION":"ELEKTRISCHE VERTEILUNG","LIVE ELECTRICAL DATA":"AKTUELLE ELEKTRISCHE DATEN",
+  "PLANT AUXILIARY":"KRAFTWERKSEIGENBEDARF","GRID STATUS":"NETZSTATUS","EVENT AND STATUS LIST":"EREIGNIS- UND STATUSLISTE",
+  "SYSTEM EVENT LOG":"SYSTEMEREIGNISPROTOKOLL","INSTRUMENTATION STATUS":"MESS- UND LEITTECHNIKSTATUS","ENVIRONMENTAL MONITORING":"UMWELTÜBERWACHUNG",
+  "LIVE ENVIRONMENT DATA":"AKTUELLE UMWELTDATEN","OUTSIDE TEMP.":"AUSSENTEMPERATUR","HUMIDITY":"LUFTFEUCHTIGKEIT",
+  "WIND SPEED":"WINDGESCHWINDIGKEIT","SITE STATUS":"ANLAGENSTATUS","GRID PARAMETERS":"NETZPARAMETER","PLANT OUTPUT":"ANLAGENLEISTUNG",
+  "AUXILIARY LOAD":"EIGENBEDARFSLAST","GRID STATE":"NETZZUSTAND","COMMUNICATION AND DATA SYSTEMS":"KOMMUNIKATIONS- UND DATENSYSTEME",
+  "OBJECT DETAILS":"OBJEKTDETAILS","CURRENT STATUS":"AKTUELLER STATUS","Load / activity":"LAST / AKTIVITÄT",
+  "Temperature reference":"TEMPERATURREferenz","DIAGNOSTICS":"DIAGNOSE"
+};
+Object.assign(translations.de, commonExtended);
+Object.assign(translations.en, {});
+Object.assign(translations.ru, {
+  "FACILITY OVERVIEW":"ОБЗОР СТАНЦИИ","PROCESS AREA / ALL UNITS":"ТЕХНОЛОГИЧЕСКАЯ ЗОНА / ВСЕ БЛОКИ",
+  "REACTOR ISLAND":"РЕАКТОРНЫЙ ОСТРОВ","COOLING AREA":"ЗОНА ОХЛАЖДЕНИЯ","TURBINE HALL / GENERATION":"ТУРБИННЫЙ ЗАЛ / ГЕНЕРАЦИЯ",
+  "LIVE PLANT STATUS":"ТЕКУЩЕЕ СОСТОЯНИЕ СТАНЦИИ","LIVE PROCESS TRENDS":"ТЕКУЩИЕ ТРЕНДЫ ПРОЦЕССА","TOTAL OUTPUT":"СУММАРНАЯ МОЩНОСТЬ",
+  "GRID LOAD":"НАГРУЗКА СЕТИ","UNIT PERFORMANCE":"РАБОТА БЛОКОВ","TOTAL FACILITY":"ВСЯ СТАНЦИЯ","SYSTEM PARAMETERS":"ПАРАМЕТРЫ СИСТЕМЫ",
+  "STEAM / WATER SYSTEM":"ПАРОВАЯ / ВОДЯНАЯ СИСТЕМА","LIVE MEASUREMENTS":"ТЕКУЩИЕ ИЗМЕРЕНИЯ","STEAM FLOW":"РАСХОД ПАРА",
+  "WATER QUALITY":"КАЧЕСТВО ВОДЫ","ELECTRICAL DISTRIBUTION":"РАСПРЕДЕЛЕНИЕ ЭЛЕКТРОЭНЕРГИИ","LIVE ELECTRICAL DATA":"ТЕКУЩИЕ ЭЛЕКТРИЧЕСКИЕ ДАННЫЕ",
+  "PLANT AUXILIARY":"СОБСТВЕННЫЕ НУЖДЫ СТАНЦИИ","GRID STATUS":"СТАТУС СЕТИ","EVENT AND STATUS LIST":"СПИСОК СОБЫТИЙ И СОСТОЯНИЙ",
+  "SYSTEM EVENT LOG":"ЖУРНАЛ СИСТЕМНЫХ СОБЫТИЙ","INSTRUMENTATION STATUS":"СОСТОЯНИЕ КИП","ENVIRONMENTAL MONITORING":"ЭКОЛОГИЧЕСКИЙ КОНТРОЛЬ",
+  "LIVE ENVIRONMENT DATA":"ТЕКУЩИЕ ДАННЫЕ ОКРУЖАЮЩЕЙ СРЕДЫ","OUTSIDE TEMP.":"НАРУЖНАЯ ТЕМПЕРАТУРА","HUMIDITY":"ВЛАЖНОСТЬ",
+  "WIND SPEED":"СКОРОСТЬ ВЕТРА","SITE STATUS":"СТАТУС ПЛОЩАДКИ","GRID PARAMETERS":"ПАРАМЕТРЫ СЕТИ","PLANT OUTPUT":"МОЩНОСТЬ СТАНЦИИ",
+  "AUXILIARY LOAD":"НАГРУЗКА СОБСТВЕННЫХ НУЖД","GRID STATE":"СОСТОЯНИЕ СЕТИ","COMMUNICATION AND DATA SYSTEMS":"СИСТЕМЫ СВЯЗИ И ДАННЫХ",
+  "OBJECT DETAILS":"ДЕТАЛИ ОБЪЕКТА","CURRENT STATUS":"ТЕКУЩЕЕ СОСТОЯНИЕ","Load / activity":"НАГРУЗКА / АКТИВНОСТЬ","DIAGNOSTICS":"ДИАГНОСТИКА"
+});
+Object.assign(translations.uk, {
+  "FACILITY OVERVIEW":"ОГЛЯД СТАНЦІЇ","PROCESS AREA / ALL UNITS":"ТЕХНОЛОГІЧНА ЗОНА / УСІ БЛОКИ",
+  "REACTOR ISLAND":"РЕАКТОРНИЙ ОСТРІВ","COOLING AREA":"ЗОНА ОХОЛОДЖЕННЯ","TURBINE HALL / GENERATION":"ТУРБІННИЙ ЗАЛ / ГЕНЕРАЦІЯ",
+  "LIVE PLANT STATUS":"ПОТОЧНИЙ СТАН СТАНЦІЇ","LIVE PROCESS TRENDS":"ПОТОЧНІ ТРЕНДИ ПРОЦЕСУ","TOTAL OUTPUT":"СУМАРНА ПОТУЖНІСТЬ",
+  "GRID LOAD":"НАВАНТАЖЕННЯ МЕРЕЖІ","UNIT PERFORMANCE":"РОБОТА БЛОКІВ","TOTAL FACILITY":"ВСЯ СТАНЦІЯ","SYSTEM PARAMETERS":"ПАРАМЕТРИ СИСТЕМИ",
+  "STEAM / WATER SYSTEM":"ПАРОВА / ВОДЯНА СИСТЕМА","LIVE MEASUREMENTS":"ПОТОЧНІ ВИМІРЮВАННЯ","STEAM FLOW":"ВИТРАТА ПАРИ",
+  "WATER QUALITY":"ЯКІСТЬ ВОДИ","ELECTRICAL DISTRIBUTION":"РОЗПОДІЛ ЕЛЕКТРОЕНЕРГІЇ","LIVE ELECTRICAL DATA":"ПОТОЧНІ ЕЛЕКТРИЧНІ ДАНІ",
+  "PLANT AUXILIARY":"ВЛАСНІ ПОТРЕБИ СТАНЦІЇ","GRID STATUS":"СТАТУС МЕРЕЖІ","EVENT AND STATUS LIST":"СПИСОК ПОДІЙ ТА СТАНІВ",
+  "SYSTEM EVENT LOG":"ЖУРНАЛ СИСТЕМНИХ ПОДІЙ","INSTRUMENTATION STATUS":"СТАН КВП","ENVIRONMENTAL MONITORING":"ЕКОЛОГІЧНИЙ КОНТРОЛЬ",
+  "LIVE ENVIRONMENT DATA":"ПОТОЧНІ ДАНІ ДОВКІЛЛЯ","OUTSIDE TEMP.":"ЗОВНІШНЯ ТЕМПЕРАТУРА","HUMIDITY":"ВОЛОГІСТЬ",
+  "WIND SPEED":"ШВИДКІСТЬ ВІТРУ","SITE STATUS":"СТАН МАЙДАНЧИКА","GRID PARAMETERS":"ПАРАМЕТРИ МЕРЕЖІ","PLANT OUTPUT":"ПОТУЖНІСТЬ СТАНЦІЇ",
+  "AUXILIARY LOAD":"НАВАНТАЖЕННЯ ВЛАСНИХ ПОТРЕБ","GRID STATE":"СТАН МЕРЕЖІ","COMMUNICATION AND DATA SYSTEMS":"СИСТЕМИ ЗВ'ЯЗКУ ТА ДАНИХ",
+  "OBJECT DETAILS":"ДЕТАЛІ ОБ'ЄКТА","CURRENT STATUS":"ПОТОЧНИЙ СТАН","Load / activity":"НАВАНТАЖЕННЯ / АКТИВНІСТЬ","DIAGNOSTICS":"ДІАГНОСТИКА"
+});
+Object.assign(translations.pl, {
+  "FACILITY OVERVIEW":"PRZEGLĄD ELEKTROWNI","PROCESS AREA / ALL UNITS":"OBSZAR PROCESOWY / WSZYSTKIE BLOKI",
+  "REACTOR ISLAND":"WYSPA REAKTOROWA","COOLING AREA":"OBSZAR CHŁODZENIA","TURBINE HALL / GENERATION":"HALA TURBIN / GENERACJA",
+  "LIVE PLANT STATUS":"BIEŻĄCY STAN ELEKTROWNI","LIVE PROCESS TRENDS":"BIEŻĄCE TRENDY PROCESU","TOTAL OUTPUT":"MOC CAŁKOWITA",
+  "GRID LOAD":"OBCIĄŻENIE SIECI","UNIT PERFORMANCE":"PRACA BLOKÓW","TOTAL FACILITY":"CAŁA ELEKTROWNIA","SYSTEM PARAMETERS":"PARAMETRY SYSTEMU",
+  "STEAM / WATER SYSTEM":"SYSTEM PARY / WODY","LIVE MEASUREMENTS":"BIEŻĄCE POMIARY","STEAM FLOW":"PRZEPŁYW PARY",
+  "WATER QUALITY":"JAKOŚĆ WODY","ELECTRICAL DISTRIBUTION":"ROZDZIAŁ ENERGII ELEKTRYCZNEJ","LIVE ELECTRICAL DATA":"BIEŻĄCE DANE ELEKTRYCZNE",
+  "PLANT AUXILIARY":"POTRZEBY WŁASNE ELEKTROWNI","GRID STATUS":"STATUS SIECI","EVENT AND STATUS LIST":"LISTA ZDARZEŃ I STANÓW",
+  "SYSTEM EVENT LOG":"DZIENNIK ZDARZEŃ SYSTEMOWYCH","INSTRUMENTATION STATUS":"STAN APARATURY POMIAROWEJ","ENVIRONMENTAL MONITORING":"MONITORING ŚRODOWISKA",
+  "LIVE ENVIRONMENT DATA":"BIEŻĄCE DANE ŚRODOWISKOWE","OUTSIDE TEMP.":"TEMPERATURA ZEWNĘTRZNA","HUMIDITY":"WILGOTNOŚĆ",
+  "WIND SPEED":"PRĘDKOŚĆ WIATRU","SITE STATUS":"STAN OBIEKTU","GRID PARAMETERS":"PARAMETRY SIECI","PLANT OUTPUT":"MOC ELEKTROWNI",
+  "AUXILIARY LOAD":"OBCIĄŻENIE POTRZEB WŁASNYCH","GRID STATE":"STAN SIECI","COMMUNICATION AND DATA SYSTEMS":"SYSTEMY ŁĄCZNOŚCI I DANYCH",
+  "OBJECT DETAILS":"SZCZEGÓŁY OBIEKTU","CURRENT STATUS":"BIEŻĄCY STAN","Load / activity":"OBCIĄŻENIE / AKTYWNOŚĆ","DIAGNOSTICS":"DIAGNOSTYKA"
+});
+let currentLanguage = localStorage.getItem('hmiLanguage') || 'de';
+if(!['de','ru','en','uk','pl'].includes(currentLanguage)) currentLanguage='de';
+let currentPage='overview';
+const translatedNodes = new WeakMap();
+
+function translateTextNode(node){
+    if(!node || !node.nodeValue || !node.nodeValue.trim()) return;
+    const raw=node.nodeValue;
+    let source=translatedNodes.get(node);
+    if(!source){ source=raw; translatedNodes.set(node,source); }
+    const dict=translations[currentLanguage]||{};
+    const trimmed=source.trim();
+    let translated=dict[trimmed] || trimmed;
+    if(dict[trimmed]){
+        const lead=source.slice(0,source.indexOf(trimmed));
+        const tail=source.slice(source.indexOf(trimmed)+trimmed.length);
+        const nextValue=lead+translated+tail;
+        if(node.nodeValue!==nextValue){
+            node.nodeValue=nextValue;
+        }
+        return;
+    }
+    // Longest-match phrase replacement for compound labels.
+    let out=source;
+    Object.keys(dict).sort((a,b)=>b.length-a.length).forEach(key=>{
+        if(key && out.includes(key)) out=out.split(key).join(dict[key]);
+    });
+    if(node.nodeValue !== out){
+        node.nodeValue=out;
+    }
+}
+
+function translateAttributes(){
+    document.querySelectorAll('[title],[aria-label]').forEach(el=>{
+        ['title','aria-label'].forEach(attr=>{
+            const key='i18nSource'+attr.replace('-','');
+            if(!el.dataset[key]){
+                const current=el.getAttribute(attr);
+                if(current) el.dataset[key]=current;
+            }
+            const base=el.dataset[key];
+            if(base) el.setAttribute(attr,translateRuntime(base));
+        });
+    });
+}
+
+function applyLanguage(){
+    document.documentElement.lang=currentLanguage;
+    document.querySelectorAll('.flag-button,.language-choice').forEach(el=>el.classList.toggle('active',el.dataset.lang===currentLanguage));
+    const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT, {acceptNode(node){ return node.parentElement && (node.parentElement.closest('.flag-button,.language-choice') || node.parentElement.closest('script,style')) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT; }});
+    let n; while(n=walker.nextNode()) translateTextNode(n);
+    translateAttributes();
+    const dict=translations[currentLanguage]||{};
+    const title=document.getElementById('settingsTitle');
+    const note=document.getElementById('languageNote');
+    if(title) title.textContent=dict['Language / Sprache']||'Language / Settings';
+    if(note) note.textContent=dict['Select the HMI language. The selected language is used throughout the interface.']||'Select the HMI language.';
+    const pageTitle=document.getElementById('pageTitle');
+    if(pageTitle){ const source=pageTitle.dataset.sourcePage || pageNames[window.currentPage||'overview'] || pageTitle.textContent; pageTitle.dataset.sourcePage=source; pageTitle.textContent=dict[source]||source; }
+    localStorage.setItem('hmiLanguage',currentLanguage);
+}
+
+function setLanguage(lang){ if(!translations[lang]) return; currentLanguage=lang; applyLanguage(); }
+function openSettings(){document.getElementById('settingsModal').classList.add('open')}
+function closeSettings(){document.getElementById('settingsModal').classList.remove('open')}
+
+document.addEventListener('DOMContentLoaded',()=>{
+    applyLanguage();
+    const observer=new MutationObserver(mutations=>{
+        for(const m of mutations){
+            if(m.type==='characterData'){
+                const node=m.target;
+                const source=translatedNodes.get(node);
+                if(source) translateTextNode(node);
+            }else if(m.type==='childList'){
+                m.addedNodes.forEach(node=>{
+                    if(node.nodeType===Node.TEXT_NODE){ if(!node.parentElement?.closest('.flag-button,.language-choice')) translateTextNode(node); }
+                    else if(node.nodeType===Node.ELEMENT_NODE){
+                        const w=document.createTreeWalker(node,NodeFilter.SHOW_TEXT);
+                        let t;
+                        while(t=w.nextNode()) translateTextNode(t);
+                        translateAttributes();
+                    }
+                });
+            }
+        }
+    });
+    observer.observe(document.body,{subtree:true,childList:true,characterData:true});
+});
+
+/* =========================================================
+   PAGE SWITCHING
+========================================================= */
+
+function showPage(page,button){
+    window.currentPage=page;
+
+    document
+    .querySelectorAll(".page")
+    .forEach(p=>{
+        p.classList.remove("active");
+    });
+
+    const target=
+        document.getElementById(page);
+
+    if(target){
+        target.classList.add("active");
+    }
+
+    document
+    .querySelectorAll(".nav button")
+    .forEach(b=>{
+        b.classList.remove("active");
+    });
+
+    if(button){
+        button.classList.add("active");
+    }
+
+    const titleEl=document.getElementById("pageTitle");
+    if(titleEl){
+        titleEl.dataset.sourcePage=pageNames[page] || page;
+        titleEl.textContent=(translations[currentLanguage]||{})[titleEl.dataset.sourcePage] || titleEl.dataset.sourcePage;
+    }
+
+}
+
+
+/* =========================================================
+   CLOCK
+========================================================= */
+
+function updateClock(){
+
+    const now=new Date();
+
+    const h=
+        String(now.getHours()).padStart(2,"0");
+
+    const m=
+        String(now.getMinutes()).padStart(2,"0");
+
+    const s=
+        String(now.getSeconds()).padStart(2,"0");
+
+    document
+    .getElementById("clock")
+    .textContent=
+        `${h}:${m}:${s}`;
+
+}
+
+setInterval(updateClock,1000);
+updateClock();
+
+
+/* =========================================================
+   SIMULATED LIVE DATA
+========================================================= */
+
+let values={
+
+    unit1:798,
+    unit2:803,
+    unit3:801,
+    unit4:799,
+
+    cooling:31.4,
+
+    gridLoad:74,
+
+    steam:82,
+
+    condensate:74,
+
+    feedwater:79,
+
+    aux:6.4,
+
+    outsideTemp:18.4,
+
+    humidity:64,
+
+    wind:4.8,
+
+    condenserPressure:0.082,
+    turbineSpeed:3000,
+    feedTemp:286.2,
+    returnTemp:31.1,
+    generatorVoltage:400.1,
+    frequency:50.00
+
+};
+
+
+/* =========================================================
+   HISTORY ARRAYS
+========================================================= */
+
+let historyOutput=
+    Array.from(
+        {length:30},
+        ()=>Math.round(3150+Math.random()*100)
+    );
+
+let historyCooling=
+    Array.from(
+        {length:30},
+        ()=>31+Math.random()*1.5
+    );
+
+let historyGrid=
+    Array.from(
+        {length:30},
+        ()=>70+Math.random()*8
+    );
+
+let historySteam=
+    Array.from(
+        {length:30},
+        ()=>78+Math.random()*7
+    );
+
+
+/* =========================================================
+   RANDOM WALK
+========================================================= */
+
+function fluctuate(
+    value,
+    amount,
+    min,
+    max
+){
+
+    value +=
+        (Math.random()-.5)*amount;
+
+    return Math.max(
+        min,
+        Math.min(max,value)
+    );
+
+}
+
+
+/* =========================================================
+   FORMAT
+========================================================= */
+
+function fmt(value,digits=1){
+
+    return Number(value)
+        .toFixed(digits);
+
+}
+
+
+/* =========================================================
+   UPDATE SIMULATION
+========================================================= */
+
+function updateSimulation(){
+
+    // Independent unit drift with a mild common process influence.
+    values.unit1=fluctuate(values.unit1,1.9,786,811);
+    values.unit2=fluctuate(values.unit2,2.2,790,812);
+    values.unit3=fluctuate(values.unit3,1.7,788,811);
+    values.unit4=fluctuate(values.unit4,2.0,786,810);
+
+    const avgUnit=(values.unit1+values.unit2+values.unit3+values.unit4)/4;
+    const loadFactor=(avgUnit-795)/20;
+
+    values.cooling=fluctuate(values.cooling,.16+Math.abs(loadFactor)*.06,29.7,33.3);
+    values.gridLoad=fluctuate(values.gridLoad,1.0+Math.abs(loadFactor)*.5,66,82);
+    values.steam=fluctuate(values.steam,.55+Math.abs(loadFactor)*.25,76,88);
+    values.condensate=fluctuate(values.condensate,.65+Math.abs(loadFactor)*.2,68,82);
+    values.feedwater=fluctuate(values.feedwater,.58+Math.abs(loadFactor)*.18,73,85);
+    values.aux=fluctuate(values.aux,.09+Math.abs(loadFactor)*.03,5.8,7.1);
+    values.outsideTemp=fluctuate(values.outsideTemp,.05,15,22);
+    values.humidity=fluctuate(values.humidity,.45,58,72);
+    values.wind=fluctuate(values.wind,.10,2.5,8);
+
+    // Additional monitored process values with tighter, instrument-like drift.
+    values.condenserPressure=fluctuate(values.condenserPressure,.0007,.078,.086);
+    values.turbineSpeed=fluctuate(values.turbineSpeed,.35,2997.5,3002.5);
+    values.feedTemp=fluctuate(values.feedTemp,.20,284.5,288.0);
+    values.returnTemp=fluctuate(values.returnTemp,.10,30.4,32.0);
+    values.generatorVoltage=fluctuate(values.generatorVoltage,.035,399.4,400.8);
+    values.frequency=fluctuate(values.frequency,.012,49.96,50.04);
+
+    const totalPower=
+        values.unit1+
+        values.unit2+
+        values.unit3+
+        values.unit4;
+
+
+    /* HISTORY */
+
+    historyOutput.push(totalPower);
+    historyOutput.shift();
+
+    historyCooling.push(values.cooling);
+    historyCooling.shift();
+
+    historyGrid.push(values.gridLoad);
+    historyGrid.shift();
+
+    historySteam.push(values.steam);
+    historySteam.shift();
+
+
+    /* UPDATE TEXT */
+
+    setText(
+        "reactorPower1",
+        fmt(values.unit1,0)
+    );
+
+    setText(
+        "reactorPower2",
+        fmt(values.unit2,0)
+    );
+
+    setText(
+        "reactorPower3",
+        fmt(values.unit3,0)
+    );
+
+    setText(
+        "reactorPower4",
+        fmt(values.unit4,0)
+    );
+
+    setText(
+        "totalPower",
+        fmt(totalPower,0)
+    );
+
+    setText(
+        "electricalOutput",
+        fmt(totalPower,0)
+    );
+
+    setText(
+        "gridPageOutput",
+        fmt(totalPower,0)
+    );
+
+
+    setText(
+        "gridLoad",
+        fmt(values.gridLoad,0)
+    );
+
+    setText(
+        "gridPageLoad",
+        fmt(values.gridLoad,0)
+    );
+
+
+    setText(
+        "auxLoad",
+        fmt(values.aux,1)
+    );
+
+    setText(
+        "gridAux",
+        fmt(values.aux,1)
+    );
+
+
+    setText(
+        "steamFlow",
+        fmt(values.steam,0)
+    );
+
+    setText(
+        "condensate",
+        fmt(values.condensate,0)
+    );
+
+    setText(
+        "feedwater",
+        fmt(values.feedwater,0)
+    );
+
+
+    setText(
+        "miniOutput",
+        fmt(totalPower,0)+" MW"
+    );
+
+    setText(
+        "miniCooling",
+        fmt(values.cooling,1)+" °C"
+    );
+
+    setText(
+        "miniGrid",
+        fmt(values.gridLoad,0)+" %"
+    );
+
+    setText(
+        "miniSteam",
+        fmt(values.steam,0)+" %"
+    );
+
+
+    setText(
+        "trendPower",
+        fmt(totalPower,0)+" MW"
+    );
+
+    setText(
+        "trendCooling",
+        fmt(values.cooling,1)+" °C"
+    );
+
+    setText(
+        "trendGrid",
+        fmt(values.gridLoad,0)+" %"
+    );
+
+    setText(
+        "trendSteam",
+        fmt(values.steam,0)+" %"
+    );
+
+
+    setText(
+        "outsideTemp",
+        fmt(values.outsideTemp,1)
+    );
+
+    setText(
+        "humidity",
+        fmt(values.humidity,0)
+    );
+
+    setText(
+        "wind",
+        fmt(values.wind,1)
+    );
+
+
+    setText(
+        "reactorUpdate",
+        new Date().toLocaleTimeString("de-DE")
+    );
+
+
+    /* TURBINES */
+
+    for(let i=1;i<=4;i++){
+
+        setText(
+            "tg"+i,
+            fmt(values["unit"+i],0)+" MW"
+        );
+
+    }
+
+
+    /* COOLING TOWERS */
+
+    for(let i=1;i<=4;i++){
+
+        setText(
+            "tower"+i,
+            fmt(
+                values.cooling+
+                (Math.random()-.5)*.7,
+                1
+            )+" °C"
+        );
+
+    }
+
+
+    /* EQUIPMENT */
+
+    for(let i=0;i<12;i++){
+
+        const el=
+            document.getElementById(
+                "equipment"+i
+            );
+
+        if(el){
+
+            el.textContent=
+                Math.round(
+                    60+
+                    i*1.4+
+                    (Math.random()-.5)*4
+                )+"%";
+
+        }
+
+    }
+
+
+    /* AVAILABILITY */
+
+    setText(
+        "availability",
+        fmt(
+            99.6+
+            Math.random()*.3,
+            1
+        )
+    );
+
+
+    /* STATUS */
+
+    updateStatusIndicators();
+
+    updateCharts();
+
+}
+
+
+/* =========================================================
+   TEXT HELPER
+========================================================= */
+
+function setText(id,value){
+    const el=document.getElementById(id);
+    if(el) el.textContent=translateRuntime(String(value));
+}
+
+
+/* =========================================================
+   STATUS VARIATION
+========================================================= */
+
+function updateStatusIndicators(){
+
+    const statuses=[
+        "NORMAL",
+        "STABLE",
+        "MONITORING",
+        "NOMINAL"
+    ];
+
+    for(let i=1;i<=4;i++){
+
+        const element=
+            document.getElementById(
+                "unitStatus"+i
+            );
+
+        if(element){
+
+            if(Math.random()<0.08){
+
+                element.textContent=
+                    statuses[
+                        Math.floor(
+                            Math.random()*
+                            statuses.length
+                        )
+                    ];
+
+            }else{
+
+                element.textContent=
+                    "NORMAL";
+
+            }
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   CHART DRAWING
+========================================================= */
+
+function makePoints(
+    values,
+    width,
+    height,
+    min,
+    max
+){
+
+    return values.map((value,index)=>{
+
+        const x=
+            index/
+            (values.length-1)*
+            width;
+
+        const normalized=
+            (value-min)/
+            (max-min);
+
+        const y=
+            height-
+            normalized*
+            height;
+
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+
+    }).join(" ");
+
+}
+
+
+function updateCharts(){
+
+    const outputPoints=
+        makePoints(
+            historyOutput,
+            300,
+            115,
+            3000,
+            3350
+        );
+
+    const coolingPoints=
+        makePoints(
+            historyCooling,
+            300,
+            115,
+            28,
+            35
+        );
+
+    const gridPoints=
+        makePoints(
+            historyGrid,
+            300,
+            115,
+            60,
+            90
+        );
+
+    const steamPoints=
+        makePoints(
+            historySteam,
+            300,
+            115,
+            70,
+            95
+        );
+
+
+    const smallOutput=
+        document.getElementById(
+            "lineOutput"
+        );
+
+    if(smallOutput){
+        smallOutput.setAttribute(
+            "points",
+            outputPoints
+        );
+    }
+
+
+    const smallCooling=
+        document.getElementById(
+            "lineCooling"
+        );
+
+    if(smallCooling){
+        smallCooling.setAttribute(
+            "points",
+            coolingPoints
+        );
+    }
+
+
+    const smallGrid=
+        document.getElementById(
+            "lineGrid"
+        );
+
+    if(smallGrid){
+        smallGrid.setAttribute(
+            "points",
+            gridPoints
+        );
+    }
+
+
+    const smallSteam=
+        document.getElementById(
+            "lineSteam"
+        );
+
+    if(smallSteam){
+        smallSteam.setAttribute(
+            "points",
+            steamPoints
+        );
+    }
+
+
+    /* LARGE CHARTS */
+
+    const largeOutput=
+        makePoints(
+            historyOutput,
+            600,
+            270,
+            3000,
+            3350
+        );
+
+    const largeCooling=
+        makePoints(
+            historyCooling,
+            600,
+            270,
+            28,
+            35
+        );
+
+    const largeGrid=
+        makePoints(
+            historyGrid,
+            600,
+            270,
+            60,
+            90
+        );
+
+    const largeSteam=
+        makePoints(
+            historySteam,
+            600,
+            270,
+            70,
+            95
+        );
+
+
+    setPoints(
+        "largePowerLine",
+        largeOutput
+    );
+
+    setPoints(
+        "largeCoolingLine",
+        largeCooling
+    );
+
+    setPoints(
+        "largeGridLine",
+        largeGrid
+    );
+
+    setPoints(
+        "largeSteamLine",
+        largeSteam
+    );
+
+}
+
+
+function setPoints(id,points){
+
+    const el=
+        document.getElementById(id);
+
+    if(el){
+        el.setAttribute(
+            "points",
+            points
+        );
+    }
+
+}
+
+
+/* =========================================================
+   OBJECT MODAL
+========================================================= */
+
+function openObject(name){
+
+    setText(
+        "modalTitle",
+        translateRuntime(name)
+    );
+
+    setText(
+        "modalLoad",
+        Math.round(
+            65+
+            Math.random()*20
+        )+" %"
+    );
+
+    setText(
+        "modalTemp",
+        fmt(
+            values.cooling,
+            1
+        )+" °C"
+    );
+
+    setText(
+        "modalTime",
+        new Date()
+        .toLocaleTimeString("de-DE")
+    );
+
+    setText(
+        "modalState",
+        "NORMAL"
+    );
+
+    document
+    .getElementById("objectModal")
+    .classList.add("open");
+
+}
+
+
+function closeModal(){
+
+    document
+    .getElementById("objectModal")
+    .classList.remove("open");
+
+}
+
+
+document
+.getElementById("objectModal")
+.addEventListener(
+    "click",
+    function(e){
+
+        if(e.target===this){
+            closeModal();
+        }
+
+    }
+);
+
+
+/* =========================================================
+   SYSTEM LOG
+========================================================= */
+
+const logMessages=[
+
+    "Monitoring cycle completed.",
+    "Instrumentation data synchronized.",
+    "Grid status information updated.",
+    "Cooling system data received.",
+    "Unit monitoring values refreshed.",
+    "Environmental monitoring updated.",
+    "Equipment diagnostic cycle completed.",
+    "Plant historian synchronized.",
+    "Communication channels verified."
+
+];
+
+
+function addLog(){
+
+    const log=
+        document.getElementById(
+            "systemLog"
+        );
+
+    if(!log){
+        return;
+    }
+
+    const now=
+        new Date()
+        .toLocaleTimeString("de-DE");
+
+    const message=
+        logMessages[
+            Math.floor(
+                Math.random()*
+                logMessages.length
+            )
+        ];
+
+    const line=
+        document.createElement("div");
+
+    line.className="logline";
+
+    line.innerHTML=`
+
+        <span class="logtime">
+            ${now}
+        </span>
+
+        &nbsp;
+
+        <span class="logok">
+            INFO
+        </span>
+
+        &nbsp;
+
+        <span class="loginfo">
+            ${message}
+        </span>
+
+    `;
+
+    log.prepend(line);
+
+    while(log.children.length>30){
+
+        log.removeChild(
+            log.lastChild
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   RANDOM EVENT
+========================================================= */
+
+function generateEvent(){
+
+    const systems=[
+
+        "Cooling",
+        "Electrical",
+        "Instrumentation",
+        "Unit 01",
+        "Unit 02",
+        "Unit 03",
+        "Unit 04",
+        "Maintenance"
+
+    ];
+
+    const messages=[
+
+        "Routine monitoring information available",
+        "Diagnostic record updated",
+        "Equipment status refreshed",
+        "Scheduled inspection data received",
+        "Monitoring cycle completed"
+
+    ];
+
+    const system=
+        systems[
+            Math.floor(
+                Math.random()*systems.length
+            )
+        ];
+
+    const message=
+        messages[
+            Math.floor(
+                Math.random()*messages.length
+            )
+        ];
+
+    const table=
+        document.getElementById(
+            "eventTable"
+        );
+
+    if(!table){
+        return;
+    }
+
+    const row=
+        document.createElement("tr");
+
+    row.innerHTML=`
+
+        <td>
+            ${new Date().toLocaleTimeString("de-DE")}
+        </td>
+
+        <td>
+            <span class="green"></span>
+        </td>
+
+        <td>
+            ${system}
+        </td>
+
+        <td>
+            ${message}
+        </td>
+
+        <td>
+            INFORMATION
+        </td>
+
+    `;
+
+    table.prepend(row);
+
+    while(table.children.length>8){
+
+        table.removeChild(
+            table.lastChild
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   START
+========================================================= */
+
+updateSimulation();
+
+addLog();
+
+setInterval(
+    updateSimulation,
+    1000
+);
+
+setInterval(
+    addLog,
+    5000
+);
+
+setInterval(
+    generateEvent,
+    12000
+);
+
+
+/* =========================================================
+   ESC CLOSE
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(e){
+
+        if(e.key==="Escape"){
+            closeModal();
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>
